@@ -1,6 +1,7 @@
 const express = require('express')
 const app= express()
 const sessionStorage = require("node-sessionstorage");
+//localhost:3000
 var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 
 //datenbank enpunkt einbinden ?
@@ -25,10 +26,10 @@ app.get("/db",(req,res)=>{
 app.post("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();});
-app.update("/db",(req,res)=>{ 
+/*app.update("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();
-});
+});*/
 app.delete("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();
@@ -44,10 +45,10 @@ app.post("/likes",(req, res)=>{
     //async öffnen des DBServer/likes
     next(); 
 })
-app.update("/likes", (req, res)=>{
+/*app.update("/likes", (req, res)=>{
     //async öffnen des DBServer/likes
     next(); 
-})
+})*/
 
 
 //Login: get; post: dbabfrage mit login informationen; update: login; param change; 
