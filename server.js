@@ -10,10 +10,10 @@ var server = app.listen(3000, () => console.log("listening on port " + 3000 + "!
 app.use(express.json());
 
 
-app.use("/html",express.static(__dirname+"/src/html/"));
+app.use("/html",express.static(__dirname+"/src/html"));
 
-//Frontend Test
-app.use("/frontend",express.static(__dirname+"/src/"));
+//Frontend
+app.use("/public",express.static(__dirname+"/src"));
 
 //Website
 app.get("/" ,(req,res)=>{
