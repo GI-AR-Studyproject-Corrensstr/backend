@@ -12,6 +12,9 @@ app.use(express.json());
 
 app.use("/html",express.static(__dirname+"/src/html/"));
 
+//Frontend Test
+app.use("/frontend",express.static(__dirname+"/src/"));
+
 //Website
 app.get("/" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index.html")
