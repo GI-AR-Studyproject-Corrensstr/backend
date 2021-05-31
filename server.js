@@ -36,20 +36,48 @@ function SendHelp(h,d,t,c){ //h[ttp method], d[ata], t[hen function!],c[atch fun
     .catch(`+c+`)    
 `
 )
+eval(
+  //  `axios.${h}("http://localhost:3040");`
+    `
+    axios.${h}("http://${dbHost}:3040/${d}")
+    .then(${t})
+    .catch(${c});    
+`
+);
+
+/*return Function(`axios.${h}("http://localhost:3040")
+.then(function (response) {
+    console.log("/db.get successful");
+    res.send(response.data);
+  })
+;`)*/
+ //axios.eval(h)("http://localhost:3040");
 //        axios.`+h+`('https://'+dbHost+'?api_key='+process.env.MASTER_KEY"+d+")
-    return Function(`
-        axios.`+h+`(\'http://`+dbHost+`:3040/`+d+`\')"
-        .then(`+t+`)
-        .catch(`+c+`)    
-    `)();
+    // return Function(`
+    //     axios.`+h+`(\'http://`+dbHost+`:3040/`+d+`\')"
+    //     .then(`+t+`)
+    //     .catch(`+c+`)    
+    // `)();
 }
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
-app.get("/db",(req,res,next)=>{ //SendHelp("get","",(response)=>{console.log("/db.get successful");res.send(response.data);},(error)=>{console.log("/db.get error");res.send(error.data);});
+app.get("/db",(req,res,next)=>{ 
+    
+    //SendHelp("get","",(response)=>{console.log("/db.get successful");res.send(response.data);},(error)=>{console.log("/db.get error");res.send(error.data);});
+
+    SendHelp("get", "", 
+    (response) => { 
+        console.log("/db.get successful"); 
+        res.send(response.data); 
+    }, 
+    (error) => { 
+        console.log("/db.get error"); 
+        res.send(error.data); 
+    });
 
    // axios.get('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY+'&date=2017-08-03')
 
-   axios.get('http://'+dbHost+":3040/")
+   /*axios.get('http://'+dbHost+":3040/")
 
         //Promises.all bzw Axios.spread möglicherweise notwendig?
         .then(function (response) {
@@ -61,7 +89,7 @@ app.get("/db",(req,res,next)=>{ //SendHelp("get","",(response)=>{console.log("/d
             console.log("/db.get error");
             console.log(error.data)
             res.send(error.data)
-          }) 
+          }) */
           
 
     //async öffnen des DBServer
