@@ -1,4 +1,5 @@
 const express = require('express')
+require('dotenv').config()
 const app= express()
 const sessionStorage = require("node-sessionstorage");
 var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
@@ -16,10 +17,34 @@ app.get("/" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index.html")
     })
 
+// abc(type,data,then,catch)=axios.$type('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY+'&date=2017-08-03')
 
+//abc(get,(response)=>{res.send(response)},(response)=>{res.send(response)})
+
+function SendHelp(h,d,t,c){ //h[ttp method], d[ata], t[hen function!],c[atch function!]
+    d != "" ? d=", {"+d+"}" : d=""; //ausprobieren!!
+    return Function(`
+        axios.`+h+`('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY"+d+")
+        .then(`+t+`)
+        .catch(`+c+`)    
+    `)();
+}
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
-app.get("/db",(req,res)=>{ 
+app.get("/db",(req,res)=>{ //SendHelp("get",,(response)=>{console.log("/db.get successful");res.send(response);},(error)=>{console.log("/db.get error");});
+
+    axios.get('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY+'&date=2017-08-03')
+
+        //Promises.all bzw Axios.spread möglicherweise notwendig?
+        .then(function (response) {
+            console.log("/db.get successful");
+            res.send(response);
+          })
+        .catch(function (error) {
+            // handle error
+            console.log("/db.get error");
+          })
+
     //async öffnen des DBServer
     next();});
 app.post("/db",(req,res)=>{ 
@@ -50,7 +75,7 @@ app.update("/likes", (req, res)=>{
 })
 
 
-//Login: get; post: dbabfrage mit login informationen; update: login; param change; 
+//Login: get; post: dbabfrage mit login informationen; update: login, param change; 
 app.post("/path",(req, res)=>{ next(); 
 }); 
 app.delete("/logout",(req,res)=>{
