@@ -23,12 +23,19 @@ app.use("/html",express.static(__dirname+"/src/html"));
 //Frontend
 app.use("/public",express.static(__dirname+"/src"));
 
-//Website
-app.get("/" ,(req,res)=>{
+//Websites
+app.get("/index" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index.html");
   });
-
-
+app.get("/index_Registrierung" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_Registrierung.html");
+  });
+app.get("/index_Gastansicht" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_Gastansicht.html");
+  });
+app.get("/index_Benutzeransicht" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_Benutzeransicht.html");
+  });
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
 app.get("/db",(req,res)=>{
