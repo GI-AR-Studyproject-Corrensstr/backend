@@ -46,11 +46,83 @@
   </div>
 </div>
 
+<script>
+var upvoted = 0;
+var downvoted = 0;
+function upvote() {
+  if(upvoted == 0) {
+    if(downvoted == 1) {
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) + 1;
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) - 1;
+    } else {
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) + 1;
+    }
+    upvoted = 1;
+    downvoted = 0;
+    document.getElementById("up").innerHTML = "Liked";
+    document.getElementById("down").innerHTML = "Dislike";
+  } else {
+    document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) - 1;
+    upvoted = 0;
+    downvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Dislike";
+  }
+
+}
+function downvote() {
+  if(downvoted == 0) {
+    if(upvoted == 1) {
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) + 1;
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) - 1;
+    } else {
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) + 1;
+    }
+    downvoted = 1;
+    upvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Disliked";
+  } else {
+    document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) - 1;
+    downvoted = 0;
+    upvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Dislike";
+  }
+}
+</script>
+<style>
+#wrapper {
+    width: 200px;
+    border: 1px solid black;
+    overflow: hidden;
+}
+#first {
+    width: 99px;
+    float:left;
+    border: 1px solid green;
+}
+#second {
+    width: 99px;
+    border: 1px solid red;
+    float: left;
+}
+</style>
 <!-- main container -->
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-6">
       <h2 id = "ansicht">Hier ist die Benutzeransicht in Planung</h2>
+      <div id="wrapper">
+        <div id="first">
+          <button id="up" onclick="upvote()">Like</button>
+          <p id="likeCounter">10</p>
+        </div>
+        <div id="second">
+          <button id="down" onclick="downvote()">Dislike</button>
+          <p id="dislikeCounter">5</p>
+        </div>
+      </div>
     </div>
 
     <br>
@@ -88,6 +160,7 @@ integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEUL
 crossorigin="anonymous"></script>
 
 <script src="server.js"> </script>
+
 </body>
 
 </html>
