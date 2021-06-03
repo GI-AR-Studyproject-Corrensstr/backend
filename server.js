@@ -41,10 +41,10 @@ app.post("/db",(req,res)=>{
     //async öffnen des DBServer
     next();
 });*/
-app.delete("/db",(req,res)=>{
-    //async öffnen des DBServer
-    next();
-});
+// app.delete("/db",(req,res)=>{
+//     //async öffnen des DBServer
+//     next();
+// });
 
 
 //Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter;
