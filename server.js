@@ -33,8 +33,14 @@ app.get("/index_Registrierung" ,(req,res)=>{
 app.get("/index_Gastansicht" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index_Gastansicht.html");
   });
+  app.get("/index_Gastansicht2" ,(req,res)=>{
+      res.sendFile(__dirname+"/src/html/index_Gastansicht2.html");
+    });
 app.get("/index_Benutzeransicht" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Benutzeransicht.html");
+  res.sendFile(__dirname+"/src/html/index_Benutzeransicht.html");
+});
+app.get("/index_Benutzeransicht2" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_Benutzeransicht2.html");
   });
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
