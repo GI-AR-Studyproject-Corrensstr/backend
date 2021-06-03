@@ -13,7 +13,7 @@
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="src/public/style.css">
+  <link rel="stylesheet" href="src/public/style.css"> <!-- href="src/style.css" -->
 </head>
 
 <body>
@@ -24,8 +24,21 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
       <ul class="nav navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_Entwurfsuebersicht">Entwurfsübersicht</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_EntwurfAnsehen">Entwurf ansehen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_EntwurfHochladen">Entwurf hochladen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index" onclick="delete_logged_User()">Logout</a> <!-- provisorischer Logout, aktuell Link zur Startseite -->
+        </li>
       </ul>
     </div>
   </nav>
@@ -43,50 +56,30 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-6">
-      <a class="nav-link" href="/index_guest_Entwurfsuebersicht">Weiter als Gast</a>
+      <h2 id = "ansicht">Hier ist die Benutzeransicht in Planung</h2>
     </div>
 
     <br>
 
     <div class="col-sm-6">
       <form>
-        <div class="form-group">
-          <label for="username">Benutzername:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp">
-        </div>
-
-        <div class="form-group">
-          <label for="password">Passwort:</label>
-          <input type="password" class="form-control" id="Password">
-        </div>
-
-        <div class="form-group">
-          <a class="nav-link" href="/index_user_Entwurfsuebersicht">Login</a>
-        <!--  <button type="button" onclick="login()" class="btn btn-default">Login</button> -->
-
-        <br><br>
-
-          <label for="password">Sind Sie noch nicht registriert?</label>
-          <a class="nav-link" href="/index_Registrierung">Weiter zur Registrierung</a>
-        <!--  <button type="button" onclick="createUser()" class="btn btn-default">Weiter zur Registrierung</button> -->
+        <h2 id = "ansicht">Benutzeransicht</h2>
+        </form>
       </div>
-
-      </form>
-      </div>
-      </div>
-   </div>
+    </div>
+  </div>
 <!-- /container -->
 
-<br><br>
-
-<!-- footer -->
-<footer class="container-fluid text-center">
-  <p> <b> Impressum </b> </p>
-  <p> (...)
-    <span class="footer-separator">|</span> 2021
     <br><br>
-</footer>
-<!-- /footer -->
+
+    <!-- footer -->
+    <footer class="container-fluid text-center">
+      <p> <b> Impressum </b> </p>
+      <p> (...)
+        <span class="footer-separator">|</span> 2021
+          <br><br>
+    </footer>
+    <!-- /footer -->
 
 <!-- The following script is mandatory (Hamburger-Menu), do not delete-->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -100,8 +93,6 @@ crossorigin="anonymous"></script>
 integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
 crossorigin="anonymous"></script>
 
-<script src="../jquery/jquery.min.js"> </script>
-<script src="../bootstrap/js/bootstrap.min.js"> </script>
 <script src="server.js"> </script>
 </body>
 

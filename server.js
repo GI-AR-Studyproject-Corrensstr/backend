@@ -23,24 +23,32 @@ app.use("/html",express.static(__dirname+"/src/html"));
 //Frontend
 app.use("/public",express.static(__dirname+"/src"));
 
-//Websites
+////////////Webseiten///////////////////////////////////
+//
+//Website-Startseite
 app.get("/index" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index.html");
   });
+//Website-Registrierung
 app.get("/index_Registrierung" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index_Registrierung.html");
   });
-app.get("/index_Gastansicht" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Gastansicht.html");
+//Website-Gastansicht
+app.get("/index_guest_Entwurfsuebersicht" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_guest_Entwurfsuebersicht.html");
   });
-  app.get("/index_Gastansicht2" ,(req,res)=>{
-      res.sendFile(__dirname+"/src/html/index_Gastansicht2.html");
-    });
-app.get("/index_Benutzeransicht" ,(req,res)=>{
-  res.sendFile(__dirname+"/src/html/index_Benutzeransicht.html");
+app.get("/index_guest_EntwurfAnsehen" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_guest_EntwurfAnsehen.html");
+  });
+//Website-Benutzeransicht
+app.get("/index_user_Entwurfsuebersicht" ,(req,res)=>{
+  res.sendFile(__dirname+"/src/html/index_user_Entwurfsuebersicht.html");
 });
-app.get("/index_Benutzeransicht2" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Benutzeransicht2.html");
+app.get("/index_user_EntwurfAnsehen" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_user_EntwurfAnsehen.html");
+  });
+app.get("/index_user_EntwurfHochladen" ,(req,res)=>{
+    res.sendFile(__dirname+"/src/html/index_user_EntwurfHochladen.html");
   });
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
