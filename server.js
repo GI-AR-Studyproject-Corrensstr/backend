@@ -9,6 +9,7 @@
 const express = require('express');
 const app= express();
 const sessionStorage = require("node-sessionstorage");
+const path = require ('path');
 //localhost:3000
 var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 
@@ -22,11 +23,19 @@ app.use("/html",express.static(__dirname+"/src/html"));
 
 //Frontend
 app.use("/public",express.static(__dirname+"/src"));
+var options = {
+    dotfiles: 'ignore',
+    etag: false,
+    extensions: ['htm', 'html'],
+    index: false,
+    redirect: false
+    }
+app.use("/",express.static(__dirname+"/src/html/", options))
 
 ////////////Webseiten///////////////////////////////////
 //
 //Website-Startseite
-app.get("/index" ,(req,res)=>{
+/*app.get("/index" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index.html");
   });
 //Website-Registrierung
@@ -49,7 +58,7 @@ app.get("/index_user_EntwurfAnsehen" ,(req,res)=>{
   });
 app.get("/index_user_EntwurfHochladen" ,(req,res)=>{
     res.sendFile(__dirname+"/src/html/index_user_EntwurfHochladen.html");
-  });
+  });*/
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
 app.get("/db",(req,res)=>{
