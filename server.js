@@ -133,18 +133,19 @@ app.delete("/db",(req,res,next)=>{
 
 
 //Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
-app.get("/likes",(req,res,next)=>{
-    ShortAxios(req,res,next,"get","/likes");
+app.get("/like",(req,res,next)=>{
+    ShortAxios(req,res,next,"get","/like");
     next(); 
 })
-app.post("/likes",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/likes",req.data);
+app.post("/like",(req,res,next)=>{
+    ShortAxios(req,res,next,"post","/like",req.data);
     next(); 
 })
-app.put("/likes", (req,res,next)=>{
-    ShortAxios(req,res,next,"put","/likes",req.data);
+app.put("/like", (req,res,next)=>{
+    ShortAxios(req,res,next,"put","/like",req.data);
     next(); 
 })
+
 
 
 //Login: get; post: dbabfrage mit login informationen; update: login, param change; 
@@ -171,5 +172,5 @@ app.delete("/logout",(req,res,next)=>{
     res.redirect("/login")
 })
 
-
+//Kommentar, Meldung
 
