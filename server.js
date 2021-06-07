@@ -35,9 +35,11 @@ app.get("/" ,(req,res,next)=>{
  * @param {String} d data bei post delete put, in JSON
  */
 function ShortAxios(req,res,next,a,msgpth,d){ 
+    raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"}
+    
         switch (a) {
         case "get":
-            axios.get("http://"+dbHost+":"+port)
+            axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
@@ -48,7 +50,7 @@ function ShortAxios(req,res,next,a,msgpth,d){
             });
             break;
         case "post":
-            axios.post("http://"+dbHost+":"+port+"{"+d+"}")
+            axios.post("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
@@ -59,7 +61,7 @@ function ShortAxios(req,res,next,a,msgpth,d){
             });
             break;
         case "put":
-            axios.put("http://"+dbHost+":"+port+"{"+d+"}")
+            axios.put("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
@@ -70,7 +72,7 @@ function ShortAxios(req,res,next,a,msgpth,d){
             });
             break;
         case "delete":
-            axios.delete("http://"+dbHost+":"+port+"{"+d+"}")
+            axios.delete("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
 
@@ -173,4 +175,28 @@ app.delete("/logout",(req,res,next)=>{
 })
 
 //Kommentar, Meldung
+app.get("/comment",(req,res,next)=>{
+    ShortAxios(req,res,next,"get","/comment");
+    next(); 
+})
+app.post("/comment",(req,res,next)=>{
+    ShortAxios(req,res,next,"post","/comment",req.data);
+    next(); 
+})
+app.put("/comment", (req,res,next)=>{
+    ShortAxios(req,res,next,"put","/comment",req.data);
+    next(); 
+})
 
+app.get("/dislike",(req,res,next)=>{
+    ShortAxios(req,res,next,"get","/dislike");
+    next(); 
+})
+app.post("/dislike",(req,res,next)=>{
+    ShortAxios(req,res,next,"post","/dislike",req.data);
+    next(); 
+})
+app.put("/dislike", (req,res,next)=>{
+    ShortAxios(req,res,next,"put","/dislike",req.data);
+    next(); 
+})
