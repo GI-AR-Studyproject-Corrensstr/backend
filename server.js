@@ -148,7 +148,22 @@ app.put("/likes", (req,res,next)=>{
 
 
 //Login: get; post: dbabfrage mit login informationen; update: login, param change; 
-app.post("/path",(req,res,next)=>{ next(); 
+app.post("/login",(req,res,next)=>{
+    axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
+            .then((response)=>{
+                data=JSON.parse(res.data) //data.name 
+                keys=Object.keys(data);
+                for(a in keys){
+                    sessionStorage.setItem(a,data[""+a])
+                }
+                console.log("cookies from answere successfully loaded");
+                res.send(response.data);
+            })
+            .catch((error) => { 
+                console.log("Error loading cookies"); 
+                res.send(error.data);
+            });
+    next(); 
 }); 
 app.delete("/logout",(req,res,next)=>{
     //delete Session
