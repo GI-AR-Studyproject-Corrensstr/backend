@@ -134,15 +134,15 @@ app.delete("/db",(req,res,next)=>{
 
 //Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
 app.get("/likes",(req,res,next)=>{
-    ShortAxios(req,res,next,"get","/likes",req.data)
+    ShortAxios(req,res,next,"get","/likes");
     next(); 
 })
 app.post("/likes",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/likes",req.data)
+    ShortAxios(req,res,next,"post","/likes",req.data);
     next(); 
 })
 app.put("/likes", (req,res,next)=>{
-    ShortAxios(req,res,next,"put","/likes",req.data)
+    ShortAxios(req,res,next,"put","/likes",req.data);
     next(); 
 })
 
