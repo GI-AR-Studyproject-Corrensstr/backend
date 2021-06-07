@@ -120,14 +120,14 @@ app.get("/db",(req,res,next)=>{
     ShortAxios(req,res,next,"get","/db");
     });
 app.post("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"post","/db");
+    ShortAxios(req,res,next,"post","/db",req.data);
     next();});
 app.put("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"put","/db");
+    ShortAxios(req,res,next,"put","/db",req.data);
     next();
 });
 app.delete("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"delete","/db");
+    ShortAxios(req,res,next,"delete","/db",req.data);
     next();
 });
 
