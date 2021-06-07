@@ -10,6 +10,7 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
+  port="3040";
 
 //datenbank enpunkt einbinden ?
 
@@ -25,23 +26,78 @@ app.get("/" ,(req,res,next)=>{
     })
 
 // abc(type,data,then,catch)=axios.$type('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY+'&date=2017-08-03')
+/**
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @param {String} a "get","post", "put", "delete"
+ * @param {String} msgpth msgpth = Pfad bezeichner zu API Endpoint zB "/DB"
+ * @param {String} d data bei post delete put, in JSON
+ */
+function ShortAxios(req,res,next,a,msgpth,d){ 
+        switch (a) {
+        case "get":
+            axios.get("http://"+dbHost+":"+port)
+            .then((response)=>{
+                console.log(msgpth+" "+a+" successful");
+                res.send(response.data);
+            })
+            .catch((error) => { 
+                console.log(msgpth+" "+a+" error"); 
+                res.send(error.data);
+            });
+            break;
+        case "post":
+            axios.post("http://"+dbHost+":"+port+"{"+d+"}")
+            .then((response)=>{
+                console.log(msgpth+" "+a+" successful");
+                res.send(response.data);
+            })
+            .catch((error) => { 
+                console.log(msgpth+" "+a+" error"); 
+                res.send(error.data);
+            });
+            break;
+        case "put":
+            axios.put("http://"+dbHost+":"+port+"{"+d+"}")
+            .then((response)=>{
+                console.log(msgpth+" "+a+" successful");
+                res.send(response.data);
+            })
+            .catch((error) => { 
+                console.log(msgpth+" "+a+" error"); 
+                res.send(error.data);
+            });
+            break;
+        case "delete":
+            axios.delete("http://"+dbHost+":"+port+"{"+d+"}")
+            .then((response)=>{
+                console.log(msgpth+" "+a+" successful");
 
-//abc(get,(response)=>{res.send(response)},(response)=>{res.send(response)})
+            })
+            .catch((error) => { 
+                console.log(msgpth+" "+a+" error"); 
+                res.send(error.data);
+            });
+            break;
+        default:
+            break;
+    }
+}
+function OLD_SendHelp(req,res,next,h,msgpth,d){ //h[ttp method], d[ata], msgpath
 
-function SendHelp(h,d,t,c){ //h[ttp method], d[ata], t[hen function!],c[atch function!]
-    d != "" ? d=", {"+d+"}" : d=""; //ausprobieren!!
-    console.log(`
-    axios.`+h+`(\'http://`+dbHost+`:3040/`+d+`\')"
-    .then(`+t+`)
-    .catch(`+c+`)    
-`
-)
 eval(
   //  `axios.${h}("http://localhost:3040");`
     `
-    axios.${h}("http://${dbHost}:3040/${d}")
-    .then(${t})
-    .catch(${c});    
+    axios.${h}("http://${dbHost}:${port}/${d}")
+    .then((response)=>{
+        console.log("${msgpth} ${h} successful");
+        res.send(response.data);
+    })
+    .catch((error) => { 
+        console.log("${msgpth} ${h} error"); 
+        res.send(error.data);
+    });;    
 `
 );
 
@@ -60,39 +116,8 @@ eval(
     // `)();
 }
 
-//Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
 app.get("/db",(req,res,next)=>{ 
-    
-    //SendHelp("get","",(response)=>{console.log("/db.get successful");res.send(response.data);},(error)=>{console.log("/db.get error");res.send(error.data);});
-
-    SendHelp("get", "", 
-    (response) => { 
-        console.log("/db.get successful"); 
-        res.send(response.data); 
-    }, 
-    (error) => { 
-        console.log("/db.get error"); 
-        res.send(error.data); 
-    });
-
-   // axios.get('https://'+process.env.MASTER_HOST+'?api_key='+process.env.MASTER_KEY+'&date=2017-08-03')
-
-   /*axios.get('http://'+dbHost+":3040/")
-
-        //Promises.all bzw Axios.spread möglicherweise notwendig?
-        .then(function (response) {
-            console.log("/db.get successful");
-            res.send(response.data);
-          })
-        .catch(function (error) {
-            // handle error
-            console.log("/db.get error");
-            console.log(error.data)
-            res.send(error.data)
-          }) */
-          
-
-    //async öffnen des DBServer
+    ShortAxios(req,res,next,"get","/db");
     });
 app.post("/db",(req,res,next)=>{ 
     //async öffnen des DBServer
