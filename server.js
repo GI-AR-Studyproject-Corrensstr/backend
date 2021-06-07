@@ -30,8 +30,10 @@ var options = {
     index: false,
     redirect: false
     }
-app.use("/",express.static(__dirname+"/src/html/", options))
-
+app.use("/",express.static(__dirname+"/src/html/", options)) //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+app.get("/",(req,res)=>{
+    res.redirect("/index");
+})
 ////////////Webseiten///////////////////////////////////
 //
 //Website-Startseite
