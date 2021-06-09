@@ -200,3 +200,19 @@ app.put("/dislike", (req,res,next)=>{
     ShortAxios(req,res,next,"put","/dislike",req.data);
     next(); 
 })
+app.get("/template",(req,res,next)=>{
+    ShortAxios(req,res,next,"get","/template");
+    next(); 
+})
+app.post("/template",(req,res,next)=>{
+    ShortAxios(req,res,next,"post","/template",req.data);
+    next(); 
+})
+app.put("/template", (req,res,next)=>{
+    ShortAxios(req,res,next,"put","/template",req.data);
+    next(); 
+})
+app.put("/template", (req,res,next)=>{
+    ShortAxios(req,res,next,"delete","/template",req.data);
+    next(); 
+})
