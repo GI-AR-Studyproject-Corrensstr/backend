@@ -12,10 +12,15 @@ if (process.env.DB_HOST) {
   }
   port="3040";
 
+//https://stackoverflow.com/questions/51143730/axios-posting-empty-request/56640357
+  axios.defaults.headers.common = {
+    "Content-Type": "application/json"
+  }
+
 //datenbank enpunkt einbinden ?
 
 //https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
-app.use(express.json());
+app.use(express.urlencoded());
 
 
 app.use("/html",express.static(__dirname+"/src/html/"));
@@ -34,6 +39,9 @@ app.get("/" ,(req,res,next)=>{
  * @param {String} msgpth msgpth = Pfad bezeichner zu API Endpoint zB "/DB"
  * @param {String} d data bei post delete put, in JSON
  */
+
+// servername/api/API ENDPOINTS base64 codierung für Bilder
+
 function ShortAxios(req,res,next,a,msgpth,d){ 
     raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"}
     
@@ -50,14 +58,22 @@ function ShortAxios(req,res,next,a,msgpth,d){
             });
             break;
         case "post":
-            axios.post("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
+            console.log(d);
+            console.log(d.data);
+            console.log("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}"); 
+
+            //axios.post("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}")
+            axios.post("http://"+dbHost+":"+port+raster[msgpth],d)
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
+               //console.log(response);
+                //res.body=response.body;
                 res.send(response.data);
             })
             .catch((error) => { 
                 console.log(msgpth+" "+a+" error"); 
-                res.send(error.data);
+                console.log(error);
+               // res.send(error.data);
             });
             break;
         case "put":
@@ -121,11 +137,11 @@ eval(
 app.get("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"get","/db");
     });
-app.post("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"post","/db",req.data);
+app.post("/db",(req,res,next)=>{
+    ShortAxios(req,res,next,"post","/db",req.body);
     next();});
 app.put("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"put","/db",req.data);
+    ShortAxios(req,res,next,"put","/db",req.body.data);
     next();
 });
 app.delete("/db",(req,res,next)=>{ 
