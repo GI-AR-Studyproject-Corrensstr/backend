@@ -57,23 +57,23 @@
         <h2 id = "ansicht">Registrierung</h2>
         <div class="form-group">
           <label for="username">Benutzername:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp"> <!-- optional: placeholder="Specify a username, for example: Max Mustermann" -->
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required> <!-- optional: placeholder="Specify a username, for example: Max Mustermann" -->
           <small id="emailHelp" class="form-text text-muted">Alle Aktivitäten auf unseren Webseiten laufen nur über den Benutzernamen.</small>
 
           <label for="username">Name:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp">
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
 
           <label for="username">Vorname:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp">
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
 
           <label for="username">E-Mail-Adresse:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp">
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
 
           <label for="password">Passwort:</label>
-          <input type="password" class="form-control" id="Password">
+          <input type="password" class="form-control" id="Password" required>
         </div>
         <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" onclick="createUser()" class="btn btn-default">Registrierung abschließen</button>
+          <button type="submit" onclick="createUser()" class="btn btn-default">Registrierung abschließen</button>
           <button type="button" onclick="deleteInputs()" class="btn btn-default">Eingaben löschen</button>
         </div>
 
