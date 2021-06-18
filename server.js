@@ -12,6 +12,7 @@ if (process.env.DB_HOST) {
   }
   port="3040";
 
+
 //https://stackoverflow.com/questions/51143730/axios-posting-empty-request/56640357
   axios.defaults.headers.common = {
     "Content-Type": "application/json"
@@ -42,7 +43,24 @@ app.get("/" ,(req,res,next)=>{
 
 // servername/api/API ENDPOINTS base64 codierung für Bilder
 
-function ShortAxios(req,res,next,a,msgpth,d){ 
+//https://brandoncc.medium.com/how-to-handle-unhandledrejection-errors-using-axios-da82b54c6356
+/*axios.interceptors.response.use(
+    response => response,
+    error => {
+      throw error
+    }
+  )*/
+
+  axios.interceptors.response.use(function (response) {
+    // Do something with response data
+    return response;
+  }, function (error) {
+    // Do something with response error
+    return Promise.reject(error);
+  });
+
+
+function ShortAxios(req,res,a,msgpth,d){ 
     raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"}
     
         switch (a) {
@@ -50,7 +68,9 @@ function ShortAxios(req,res,next,a,msgpth,d){
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
+                try{
                 res.send(response.data);
+                }catch(error){console.error("HollaDieWaldfee");}
             })
             .catch((error) => { 
                 console.log(msgpth+" "+a+" error"); 
@@ -58,22 +78,57 @@ function ShortAxios(req,res,next,a,msgpth,d){
             });
             break;
         case "post":
-            console.log(d);
-            console.log(d.data);
-            console.log("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}"); 
+            //console.log(d);
+           // console.log(d.data);
+            //console.log("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}"); 
 
             //axios.post("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}")
             axios.post("http://"+dbHost+":"+port+raster[msgpth],d)
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
+               //console.log(response.data);
                //console.log(response);
+               //console.error(res.req);
+               //console.log(res._header);
                 //res.body=response.body;
-                res.send(response.data);
+                
+                
+                try{
+                   /* res.setHeader("Content-Type", "text/html");
+                    res.write(response.body);
+                    res.end();*/
+                    //console.log(response.data);
+                    
+
+                    console.log(res);
+                    console.log(response.data);
+                    res.send(response.data);
+                    
+                    }catch(error){console.error("Error On Post FK");
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);}
+                
             })
-            .catch((error) => { 
-                console.log(msgpth+" "+a+" error"); 
+            .catch((error) =>  {
+                    if (error.response) {
+                      // Request made and server responded
+                      console.log(error.response.data);
+                      console.log(error.response.status);
+                      console.log(error.response.headers);
+                    } else if (error.request) {
+                      // The request was made but no response was received
+                      console.log(error.request);
+                    } else {
+                      // Something happened in setting up the request that triggered an Error
+                      console.log('Error', error.message);
+                      console.log(res._header);
+                    }
+                
+                  
+               /* console.log(msgpth+" "+a+" error"); 
                 console.log(error);
-               // res.send(error.data);
+                res.send({ error })*/
             });
             break;
         case "put":
@@ -134,12 +189,14 @@ eval(
     // `)();
 }
 
-app.get("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"get","/db");
+app.get("/db",(req,res)=>{ 
+    ShortAxios(req,res,"get","/db");
     });
 app.post("/db",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/db",req.body);
-    next();});
+       // console.log(req._header);
+   // console.log(res._header);
+    return ShortAxios(req,res,"post","/db",req.body);
+    });
 app.put("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"put","/db",req.body.data);
     next();

@@ -10,6 +10,7 @@ app.get("/" ,(req,res,next)=>{
 app.post("/" ,(req,res,next)=>{
     console.log("incoming post request");
     res.body=req.body;
-    console.log(req.body);
-    res.send("[POST Masterserver:Es klappt!]");
+    //console.log(req.body);
+    res.send(req.body);
+    //res.send("[POST Masterserver:Es klappt!]");
     })
