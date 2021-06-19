@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Studienprojekt Stadtlabor</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <!-- This script is mandatory (Hamburger-Menu), do not delete-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+  integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="src/public/style.css"> <!-- href="src/style.css" -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="style1.css">
+</head>
+
+<body>
+  <!-- navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark navbar-inverse">
+    <a class="navbar-brand">Menu</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="nav navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/index_Benutzeransicht">Benutzeransicht</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="delete_logged_User()">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- /navbar -->
+
+  <div class="Introduction">
+    <div class="jumbotron">
+      <h2><b>App-Project Corrensstraße</b></h2>
+      course: Studienprojekt Stadtlabor 2021 <br>
+    <br>
+  </div>
+</div>
+
+<script>
+var upvoted = 0;
+var downvoted = 0;
+function upvote() {
+  if(upvoted == 0) {
+    if(downvoted == 1) {
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) + 1;
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) - 1;
+    } else {
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) + 1;
+    }
+    upvoted = 1;
+    downvoted = 0;
+    document.getElementById("up").innerHTML = "Liked";
+    document.getElementById("down").innerHTML = "Dislike";
+  } else {
+    document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) - 1;
+    upvoted = 0;
+    downvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Dislike";
+  }
+
+}
+function downvote() {
+  if(downvoted == 0) {
+    if(upvoted == 1) {
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) + 1;
+      document.getElementById("likeCounter").innerHTML =  parseInt(document.getElementById("likeCounter").innerHTML) - 1;
+    } else {
+      document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) + 1;
+    }
+    downvoted = 1;
+    upvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Disliked";
+  } else {
+    document.getElementById("dislikeCounter").innerHTML =  parseInt(document.getElementById("dislikeCounter").innerHTML) - 1;
+    downvoted = 0;
+    upvoted = 0;
+    document.getElementById("up").innerHTML = "Like";
+    document.getElementById("down").innerHTML = "Dislike";
+  }
+}
+</script>
+<style>
+#wrapper {
+    width: 200px;
+    border: 1px solid black;
+    overflow: hidden;
+}
+#first {
+    width: 99px;
+    float:left;
+    border: 1px solid green;
+}
+#second {
+    width: 99px;
+    border: 1px solid red;
+    float: left;
+}
+</style>
+<!-- main container -->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-6">
+      <h2 id = "ansicht">Hier ist die Benutzeransicht in Planung</h2>
+      <div id="wrapper">
+        <div id="first">
+          <button id="likebtn" onclick="upvote()">
+            <i class="fa fa-thumbs-up"></i>
+          </button>
+          <p id="likeCounter">0</p>
+        </div>
+        <div id="second">
+          <button id="dislikebtn" onclick="downvote()">
+            <i class="fa fa-thumbs-down"></i>
+          </button>
+          <p id="dislikeCounter">0</p>
+        </div>
+      </div>
+    </div>
+
+    <br>
+
+    <div class="col-sm-6">
+      <form>
+        <h2 id = "ansicht">Benutzeransicht</h2>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+<!-- /container -->
+
+    <br><br>
+
+    <!-- footer -->
+    <footer class="container-fluid text-center">
+      <p> <b> Impressum </b> </p>
+      <p> (...)
+        <span class="footer-separator">|</span> 2021
+          <br><br>
+    </footer>
+    <!-- /footer -->
+
+<!-- The following script is mandatory (Hamburger-Menu), do not delete-->
+
+<script type="text/javascript">
+    let likebtn = document.querySelector('#likebtn');
+    let dislikebtn = document.querySelector('#dislikebtn');
+    let input1 = document.querySelector('#input1');
+    let input2 = document.querySelector('#input2');
+
+    likebtn.addEventListener('click',()=>{
+      input1.value = parseInt(input1.value) + 1;
+      input1.style-color = "#12ff00";
+    })
+    dislikebtn.addEventListener('click',()=>{
+      input2.value = parseInt(input2.value) + 1;
+      input2.style-color = "#ff0000";
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+crossorigin="anonymous"></script>
+<!-- The following script is mandatory (Hamburger-Menu), do not delete-->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+crossorigin="anonymous"></script>
+<script src='plugin.js'></script>
+
+<script src="server.js"> </script>
+
+</body>
+
+</html>
