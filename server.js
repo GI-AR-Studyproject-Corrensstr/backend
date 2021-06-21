@@ -10,8 +10,13 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
-  port="3040";
+  //port="3040"; //Testumgebung
+  port="8000"; //Masterserver
 
+
+//bibs
+app.use('/bootstrap', express.static(__dirname+'/node_modules/bootstrap/dist'));
+app.use('/jquery', express.static(__dirname+"/node_modules/jquery/dist/"));
 
 //https://stackoverflow.com/questions/51143730/axios-posting-empty-request/56640357
   axios.defaults.headers.common = {
@@ -83,7 +88,7 @@ function err(error) {
 
 
 function ShortAxios(req,res,a,msgpth,d){ 
-    // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/","/comment":"/","/login":"/api/login","/dislike":"/","/register":"/api/register"} // Masterserver
+    // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
     raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/"} //Testserver
     
         switch (a) {
@@ -91,9 +96,7 @@ function ShortAxios(req,res,a,msgpth,d){
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
-                try{
                 res.send(response.data);
-                }catch(error){console.error("HollaDieWaldfee");}
             })
             .catch((error)=>{err(error)});
             break;
