@@ -18,14 +18,14 @@ app.get("/" ,(req,res)=>{
 
 
 
-//Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
+//Entwurfs-Datenbank: get; post:dbabfrage mit parametern; put: parameter auswahl, param change; delete: params
 app.get("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();});
 app.post("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();});
-app.update("/db",(req,res)=>{ 
+app.put("/db",(req,res)=>{ 
     //async öffnen des DBServer
     next();
 });
@@ -35,7 +35,7 @@ app.delete("/db",(req,res)=>{
 });
 
 
-//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
+//Like-Dislike Funktion: get; post: dbabfrage mit parametern; put parameter; 
 app.get("/likes",(req,res)=>{
     //async öffnen des DBServer/likes
     next(); 
@@ -44,13 +44,13 @@ app.post("/likes",(req, res)=>{
     //async öffnen des DBServer/likes
     next(); 
 })
-app.update("/likes", (req, res)=>{
+app.put("/likes", (req, res)=>{
     //async öffnen des DBServer/likes
     next(); 
 })
 
 
-//Login: get; post: dbabfrage mit login informationen; update: login; param change; 
+//Login: get; post: dbabfrage mit login informationen; put: login; param change; 
 app.post("/path",(req, res)=>{ next(); 
 }); 
 app.delete("/logout",(req,res)=>{
