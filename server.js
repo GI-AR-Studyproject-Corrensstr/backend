@@ -51,17 +51,40 @@ app.get("/" ,(req,res,next)=>{
     }
   )*/
 
-  axios.interceptors.response.use(function (response) {
+  /*axios.interceptors.response.use(function (response) {
     // Do something with response data
     return response;
   }, function (error) {
     // Do something with response error
     return Promise.reject(error);
-  });
+  });*/
+/**
+ * Errorhandler, nur interne Funktion für ShortAxios um viel reduntanter Schreibarbeit zu ersparen
+ * @param {*} error 
+ */
+function err(error) {
+    console.log(msgpth+" "+a+" error"); 
+    if (error.response) {
+      // Request made and server responded
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
+      console.log(res._header);
+    }
+    //console.log(error);
+    res.send({ error })
+}
 
 
 function ShortAxios(req,res,a,msgpth,d){ 
-    raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"}
+    // raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"} // Masterserver
+    raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"} //Testserver
     
         switch (a) {
         case "get":
@@ -72,86 +95,33 @@ function ShortAxios(req,res,a,msgpth,d){
                 res.send(response.data);
                 }catch(error){console.error("HollaDieWaldfee");}
             })
-            .catch((error) => { 
-                console.log(msgpth+" "+a+" error"); 
-                res.send(error.data);
-            });
+            .catch((error)=>{err(error)});
             break;
         case "post":
-            //console.log(d);
-           // console.log(d.data);
-            //console.log("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}"); 
-
-            //axios.post("http://"+dbHost+":"+port+raster[msgpth],"{"+Object.keys(d)[0]+":\""+d[""+Object.keys(d)[0]]+"\"}")
-            axios.post("http://"+dbHost+":"+port+raster[msgpth],d)
+            //axios mit options?
+            axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
-               //console.log(response.data);
-               //console.log(response);
-               //console.error(res.req);
-               //console.log(res._header);
-                //res.body=response.body;
-                
-                
-                try{
-                   /* res.setHeader("Content-Type", "text/html");
-                    res.write(response.body);
-                    res.end();*/
-                    //console.log(response.data);
-                    
-
-                    console.log(res);
-                    console.log(response.data);
-                    res.send(response.data);
-                    
-                    }catch(error){console.error("Error On Post FK");
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);}
-                
-            })
-            .catch((error) =>  {
-                    if (error.response) {
-                      // Request made and server responded
-                      console.log(error.response.data);
-                      console.log(error.response.status);
-                      console.log(error.response.headers);
-                    } else if (error.request) {
-                      // The request was made but no response was received
-                      console.log(error.request);
-                    } else {
-                      // Something happened in setting up the request that triggered an Error
-                      console.log('Error', error.message);
-                      console.log(res._header);
-                    }
-                
-                  
-               /* console.log(msgpth+" "+a+" error"); 
-                console.log(error);
-                res.send({ error })*/
-            });
+                console.log(response.data);
+                res.send(response.data);
+                })
+            .catch((error)=>{err(error)});
             break;
         case "put":
-            axios.put("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
+            axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error) => { 
-                console.log(msgpth+" "+a+" error"); 
-                res.send(error.data);
-            });
+            .catch((error)=>{err(error)});
             break;
         case "delete":
-            axios.delete("http://"+dbHost+":"+port+raster[msgpth]+",{"+d+"}")
+            axios.delete("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
 
             })
-            .catch((error) => { 
-                console.log(msgpth+" "+a+" error"); 
-                res.send(error.data);
-            });
+            .catch((error)=>{err(error)});
             break;
         default:
             break;
@@ -193,17 +163,13 @@ app.get("/db",(req,res)=>{
     ShortAxios(req,res,"get","/db");
     });
 app.post("/db",(req,res,next)=>{
-       // console.log(req._header);
-   // console.log(res._header);
-    return ShortAxios(req,res,"post","/db",req.body);
+    ShortAxios(req,res,"post","/db",req.body);
     });
 app.put("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"put","/db",req.body.data);
-    next();
 });
 app.delete("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"delete","/db",req.data);
-    next();
 });
 
 
