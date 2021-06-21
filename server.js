@@ -67,7 +67,7 @@ app.get("/" ,(req,res,next)=>{
  * Errorhandler, nur interne Funktion für ShortAxios um viel reduntanter Schreibarbeit zu ersparen
  * @param {*} error 
  */
-function err(error,msgpth,a) {
+function err(error,msgpth,a,res) {
     console.log(msgpth+" "+a+" error"); 
     if (error.response) {
       // Request made and server responded
@@ -98,7 +98,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{err(error,msgpth,a)});
+            .catch((error)=>{err(error,msgpth,a,res)});
             break;
         case "post":
             //axios mit options?
@@ -108,7 +108,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(response.data);
                 res.send(response.data);
                 })
-            .catch((error)=>{err(error,msgpth,a)});
+                .catch((error)=>{err(error,msgpth,a,res)});
             break;
         case "put":
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
@@ -116,7 +116,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{err(error,msgpth,a)});
+            .catch((error)=>{err(error,msgpth,a,res)});
             break;
         case "delete":
             axios.delete("http://"+dbHost+":"+port+raster[msgpth],{...d})
@@ -124,7 +124,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
 
             })
-            .catch((error)=>{err(error,msgpth,a)});
+            .catch((error)=>{err(error,msgpth,a,res)});
             break;
         default:
             break;
