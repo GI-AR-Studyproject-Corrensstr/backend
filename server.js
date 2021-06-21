@@ -83,8 +83,8 @@ function err(error) {
 
 
 function ShortAxios(req,res,a,msgpth,d){ 
-    // raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"} // Masterserver
-    raster={"/db":"/","/like":"/","/comment":"/","/login":"/","/dislike":"/"} //Testserver
+    // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/","/comment":"/","/login":"/api/login","/dislike":"/","/register":"/api/register"} // Masterserver
+    raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/"} //Testserver
     
         switch (a) {
         case "get":
@@ -165,29 +165,15 @@ app.get("/db",(req,res)=>{
 app.post("/db",(req,res,next)=>{
     ShortAxios(req,res,"post","/db",req.body);
     });
+    app.post("/dbByID",(req,res,next)=>{ //?? Params
+        ShortAxios(req,res,"post","/db",req.body);
+    });
 app.put("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"put","/db",req.body.data);
 });
 app.delete("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"delete","/db",req.data);
 });
-
-
-//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
-app.get("/like",(req,res,next)=>{
-    ShortAxios(req,res,next,"get","/like");
-    next(); 
-})
-app.post("/like",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/like",req.data);
-    next(); 
-})
-app.put("/like", (req,res,next)=>{
-    ShortAxios(req,res,next,"put","/like",req.data);
-    next(); 
-})
-
-
 
 //Login: get; post: dbabfrage mit login informationen; update: login, param change; 
 app.post("/login",(req,res,next)=>{
@@ -204,9 +190,12 @@ app.post("/login",(req,res,next)=>{
             .catch((error) => { 
                 console.log("Error loading cookies"); 
                 res.send(error.data);
-            });
-    next(); 
+            }); 
 }); 
+app.post("/register",(req,res,next)=>{
+    ShortAxios(req,res,"post","/register",req.body);
+})
+
 app.delete("/logout",(req,res,next)=>{
     //delete Session
     req.logOut()
@@ -215,43 +204,53 @@ app.delete("/logout",(req,res,next)=>{
 
 //Kommentar, Meldung
 app.get("/comment",(req,res,next)=>{
-    ShortAxios(req,res,next,"get","/comment");
-    next(); 
+    ShortAxios(req,res,"get","/comment");
+})
+app.get("/commentByID",(req,res,next)=>{ //??Params
+    ShortAxios(req,res,"get","/comment");
 })
 app.post("/comment",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/comment",req.data);
-    next(); 
+    ShortAxios(req,res,next,"post","/comment",req.body);
 })
-app.put("/comment", (req,res,next)=>{
-    ShortAxios(req,res,next,"put","/comment",req.data);
-    next(); 
+app.put("/comment", (req,res,next)=>{ //??Params
+    ShortAxios(req,res,next,"put","/comment",req.body);
 })
 
-app.get("/dislike",(req,res,next)=>{
-    ShortAxios(req,res,next,"get","/dislike");
-    next(); 
+//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
+app.get("/like",(req,res)=>{
+    ShortAxios(req,res,"get","/like");
 })
-app.post("/dislike",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/dislike",req.data);
-    next(); 
+app.get("/likeByID",(req,res)=>{ //?? Params
+    ShortAxios(req,res,"get","/like");
 })
-app.put("/dislike", (req,res,next)=>{
-    ShortAxios(req,res,next,"put","/dislike",req.data);
-    next(); 
+app.post("/like",(req,res)=>{
+    ShortAxios(req,res,"post","/like",req.body);
 })
-app.get("/template",(req,res,next)=>{
+app.put("/like", (req,res)=>{ //??Params
+    ShortAxios(req,res,"put","/like",req.body);
+})
+//TEMPLATE
+app.get("/template",(req,res)=>{
     ShortAxios(req,res,next,"get","/template");
-    next(); 
 })
-app.post("/template",(req,res,next)=>{
+app.post("/template",(req,res)=>{
     ShortAxios(req,res,next,"post","/template",req.data);
-    next(); 
 })
-app.put("/template", (req,res,next)=>{
+app.put("/template", (req,res)=>{
     ShortAxios(req,res,next,"put","/template",req.data);
-    next(); 
 })
-app.put("/template", (req,res,next)=>{
+
+// ASSET
+app.get("/asset",(req,res,next)=>{
+    ShortAxios(req,res,"get","/asset");
+})
+app.get("/assetByID",(req,res,next)=>{ //??==> Parameter übergeben
+    ShortAxios(req,res,"get","/asset");
+})
+app.put("/template", (req,res,next)=>{ //??==> Parameter übergeben
     ShortAxios(req,res,next,"delete","/template",req.data);
     next(); 
+})
+app.post("/asset",(req,res,next)=>{
+    ShortAxios(req,res,"post","/asset",req.body);
 })
