@@ -1,9 +1,38 @@
 const express = require('express')
+const https = require('https');
+const fs = require('fs');
 require('dotenv').config()
 const axios = require('axios').default;
 const app= express()
 const sessionStorage = require("node-sessionstorage");
-var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
+//var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
+
+const ssloptions = {
+    key: fs.readFileSync('./SSL/key.pem'),
+    cert: fs.readFileSync('./SSL/cert.pem')
+  };
+
+
+const httpsAgent = new https.Agent(
+    ssloptions)
+    /**{
+    rejectUnauthorized: false, // (NOTE: this will disable client verification)
+    cert: fs.readFileSync("./usercert.pem"),
+    key: fs.readFileSync("./key.pem"),
+    passphrase: "YYY"
+})*/
+  
+ // axios.get(url, { httpsAgent })
+  
+  // or
+  
+  //const instance = axios.create({ httpsAgent })
+
+
+https.createServer(ssloptions, function (req, res) {
+    res.writeHead(200);
+    res.end("hello world\n");
+}).listen(8000);
 
 if (process.env.DB_HOST) {
     dbHost = process.env.DB_HOST;
