@@ -7,6 +7,9 @@ const app= express()
 const sessionStorage = require("node-sessionstorage");
 //var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 
+//Testen:
+//https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
+
 const ssloptions = {
     key: fs.readFileSync('./SSL/key.pem'),
     cert: fs.readFileSync('./SSL/cert.pem')
