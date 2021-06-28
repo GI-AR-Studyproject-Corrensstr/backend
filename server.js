@@ -118,7 +118,7 @@ function err(error) {
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/"} //Testserver
+    raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/","/marker":"/api/marker"} //Testserver
     
         switch (a) {
         case "get":
@@ -285,4 +285,18 @@ app.put("/template", (req,res,next)=>{ //??==> Parameter übergeben
 })
 app.post("/asset",(req,res,next)=>{
     ShortAxios(req,res,"post","/asset",req.body);
+})
+
+//Marker 
+app.get("/marker",(req,res)=>{
+    ShortAxios(req,res,"get","/marker");
+})
+app.get("/markerByID",(req,res)=>{  //Parametrisiert?
+    ShortAxios(req,res,"get","/marker");
+})
+app.post("/marker",(req,res)=>{
+    ShortAxios(req,res,"post","/marker",req.body);
+})
+app.put("/marker", (req,res)=>{ 
+    ShortAxios(req,res,"put","/marker",req.body);
 })
