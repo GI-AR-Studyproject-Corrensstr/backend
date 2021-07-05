@@ -3,6 +3,11 @@ const app= express()
 app.use(express.json());
 
 var server = app.listen(3040, () => console.log("listening on port " + 3040 + "! :)"));
+
+//https://www.kevinleary.net/regex-route-express/
+app.get("/test/:id",(req,res,next)=>{
+res.send(req.params.id)
+})
 app.get("/" ,(req,res,next)=>{
     console.log("incoming get request")
     res.send("[GET Masterserver:Es klappt!]");
