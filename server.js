@@ -121,7 +121,7 @@ function err(error) {
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/","/marker":"/api/marker"} //Testserver
+    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker"} //Testserver
     
         switch (a) {
         case "get":
@@ -194,21 +194,77 @@ eval(
     // `)();
 }
 
-app.get("/db",(req,res)=>{ 
+//1.1) 
+app.get("/db",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db");
     });
-app.post("/db",(req,res,next)=>{
+app.post("/db",(req,res,next)=>{ //add new suggestion
     ShortAxios(req,res,"post","/db",req.body);
     });
-    app.post("/dbByID/:id",(req,res)=>{ //?? Testen
-        ShortAxios(req,res,"post","/db/"+req.params.id,req.body);
+
+app.get("/db/:id",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id);
     });
-app.put("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"put","/db",req.body.data);
+app.put("/db/:id",(req,res,next)=>{  //change suggestion by ID 
+    ShortAxios(req,res,next,"put","/db/"+req.params.id,req.body.data);
 });
-app.delete("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"delete","/db",req.data);
+app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
+    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.data);
 });
+app.get("/db/:id/vote",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/vote");
+    });
+app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/comment");
+    });
+app.get("/db/:id/report",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/report");
+    });
+
+    //1.2)
+//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
+app.get("/like",(req,res)=>{ //get all votes
+    ShortAxios(req,res,"get","/like");
+})
+app.post("/like",(req,res)=>{ //add new vote
+    ShortAxios(req,res,"post","/like",req.body);
+})
+//////////
+app.get("/like/:id",(req,res)=>{ //??Testen //get all vote by ID
+    ShortAxios(req,res,"get","/like/"+req.params.id);
+})
+app.put("/like/:id", (req,res)=>{ //??Testen //change vote by ID 
+    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
+})
+app.delete("/like/:id", (req,res)=>{ //??Testen //delete vote by ID 
+    ShortAxios(req,res,"delete","/like"+req.params.id,req.body);
+})
+
+// 1.3)
+//Kommentar, Meldung
+app.get("/comment",(req,res,next)=>{ //get all comments
+    ShortAxios(req,res,"get","/comment");
+})
+app.post("/comment",(req,res,next)=>{ //create new comment
+    ShortAxios(req,res,next,"post","/comment",req.body);
+})
+////////
+app.get("/comment/:id",(req,res,next)=>{ //??Testen //get comment by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id);
+})
+app.put("/comment/:id", (req,res,next)=>{ //??Testen //change comment by ID
+    ShortAxios(req,res,next,"put","/comment/"+req.params.id,req.body);
+})
+app.delete("/comment/:id", (req,res,next)=>{ //??Testen //delete comment by ID
+    ShortAxios(req,res,next,"delete","/comment/"+req.params.id,req.body);
+})
+app.get("/comment/:id/vote",(req,res)=>{  //get all votes by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id+"/vote");
+    });
+app.get("/comment/:id/report",(req,res)=>{  //get all reports by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id+"/report");
+    });
+
 
 //Login: get; post: dbabfrage mit login informationen; update: login, param change; 
 app.post("/login",(req,res,next)=>{
@@ -237,33 +293,7 @@ app.delete("/logout",(req,res,next)=>{
     res.redirect("/login")
 })
 
-//Kommentar, Meldung
-app.get("/comment",(req,res,next)=>{
-    ShortAxios(req,res,"get","/comment");
-})
-app.get("/comment/:id",(req,res,next)=>{ //??Testen
-    ShortAxios(req,res,"get","/comment/"+req.params.id);
-})
-app.post("/comment",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/comment",req.body);
-})
-app.put("/comment/:id", (req,res,next)=>{ //??Testen
-    ShortAxios(req,res,next,"put","/comment"+req.params.id,req.body);
-})
 
-//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
-app.get("/like",(req,res)=>{
-    ShortAxios(req,res,"get","/like");
-})
-app.post("/like",(req,res)=>{
-    ShortAxios(req,res,"post","/like",req.body);
-})
-app.get("/like/:id",(req,res)=>{ //??Testen
-    ShortAxios(req,res,"get","/like/"+req.params.id);
-})
-app.put("/like/:id", (req,res)=>{ //??Testen
-    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
-})
 //TEMPLATE
 app.get("/template",(req,res)=>{
     ShortAxios(req,res,next,"get","/template");
