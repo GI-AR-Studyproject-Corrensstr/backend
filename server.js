@@ -1,6 +1,8 @@
 const express = require('express')
 const https = require('https');
 const fs = require('fs');
+var privateKey = fs.readFileSync('./SSL/key.pem', 'utf8'); 
+var certificate = fs.readFileSync('./SSL/cert.pem', 'utf8');
 require('dotenv').config()
 const axios = require('axios').default;
 const app= express()
@@ -10,11 +12,13 @@ const sessionStorage = require("node-sessionstorage");
 //Testen:
 //https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
 
-const ssloptions = {
+/**const ssloptions = {
     key: fs.readFileSync('./SSL/key.pem'),
     cert: fs.readFileSync('./SSL/cert.pem')
   };
+*/
 
+var ssloptions = {key: privateKey, cert: certificate}; 
 
 const httpsAgent = new https.Agent(
     ssloptions)
