@@ -200,8 +200,8 @@ app.get("/db",(req,res)=>{
 app.post("/db",(req,res,next)=>{
     ShortAxios(req,res,"post","/db",req.body);
     });
-    app.post("/dbByID",(req,res,next)=>{ //?? Params
-        ShortAxios(req,res,"post","/db",req.body);
+    app.post("/dbByID/:id",(req,res)=>{ //?? Testen
+        ShortAxios(req,res,"post","/db/"+req.params.id,req.body);
     });
 app.put("/db",(req,res,next)=>{ 
     ShortAxios(req,res,next,"put","/db",req.body.data);
@@ -241,28 +241,28 @@ app.delete("/logout",(req,res,next)=>{
 app.get("/comment",(req,res,next)=>{
     ShortAxios(req,res,"get","/comment");
 })
-app.get("/commentByID",(req,res,next)=>{ //??Params
-    ShortAxios(req,res,"get","/comment");
+app.get("/commentByID/:id",(req,res,next)=>{ //??Testen
+    ShortAxios(req,res,"get","/comment/"+req.params.id);
 })
 app.post("/comment",(req,res,next)=>{
     ShortAxios(req,res,next,"post","/comment",req.body);
 })
-app.put("/comment", (req,res,next)=>{ //??Params
-    ShortAxios(req,res,next,"put","/comment",req.body);
+app.put("/comment/:id", (req,res,next)=>{ //??Testen
+    ShortAxios(req,res,next,"put","/comment"+req.params.id,req.body);
 })
 
 //Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
 app.get("/like",(req,res)=>{
     ShortAxios(req,res,"get","/like");
 })
-app.get("/likeByID",(req,res)=>{ //?? Params
-    ShortAxios(req,res,"get","/like");
+app.get("/likeByID/:id",(req,res)=>{ //??Testen
+    ShortAxios(req,res,"get","/like/"+req.params.id);
 })
 app.post("/like",(req,res)=>{
     ShortAxios(req,res,"post","/like",req.body);
 })
-app.put("/like", (req,res)=>{ //??Params
-    ShortAxios(req,res,"put","/like",req.body);
+app.put("/like/:id", (req,res)=>{ //??Testen
+    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
 })
 //TEMPLATE
 app.get("/template",(req,res)=>{
@@ -279,11 +279,11 @@ app.put("/template", (req,res)=>{
 app.get("/asset",(req,res,next)=>{
     ShortAxios(req,res,"get","/asset");
 })
-app.get("/assetByID",(req,res,next)=>{ //??==> Parameter übergeben
-    ShortAxios(req,res,"get","/asset");
+app.get("/assetByID/:id",(req,res,next)=>{ //??Testen
+    ShortAxios(req,res,"get","/asset/"+req.params.id);
 })
-app.put("/template", (req,res,next)=>{ //??==> Parameter übergeben
-    ShortAxios(req,res,next,"delete","/template",req.data);
+app.put("/template/:id", (req,res,next)=>{ //??Testen
+    ShortAxios(req,res,"delete","/template/"+req.params.id,req.data);
     next(); 
 })
 app.post("/asset",(req,res,next)=>{
@@ -294,8 +294,8 @@ app.post("/asset",(req,res,next)=>{
 app.get("/marker",(req,res)=>{
     ShortAxios(req,res,"get","/marker");
 })
-app.get("/markerByID",(req,res)=>{  //Parametrisiert?
-    ShortAxios(req,res,"get","/marker");
+app.get("/markerByID/:id",(req,res)=>{  //Testen
+    ShortAxios(req,res,"get","/marker/"+req.params.id);
 })
 app.post("/marker",(req,res)=>{
     ShortAxios(req,res,"post","/marker",req.body);
