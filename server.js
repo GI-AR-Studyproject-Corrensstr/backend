@@ -125,7 +125,7 @@ function err(error) {
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker"} //Testserver
+    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker","template":"api/asset/template"} //Testserver
     
         switch (a) {
         case "get":
@@ -333,7 +333,7 @@ app.post("/register",(req,res,next)=>{
 //Get all templates
 app.get("/template",(req,res)=>{
     ShortAxios(req,res,next,"get","/template");
-})
+})/* //TODO GetTemplateById, add template, update template & delete template könnt ihr über die Assets Routen machen und dann einfach 'is_template' auf true setzen
 //Create new template
 app.post("/template",(req,res)=>{
     ShortAxios(req,res,next,"post","/template",req.data);
@@ -349,7 +349,7 @@ app.put("/template", (req,res)=>{
 //Delte template by id
 app.delete("/template",(req,res,next)=>{ 
     ShortAxios(req,res,next,"delete","/template",req.data);
-});
+});*/
 
 
 
