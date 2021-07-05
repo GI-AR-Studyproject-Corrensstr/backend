@@ -214,33 +214,6 @@ app.delete("/db",(req,res,next)=>{
     ShortAxios(req,res,next,"delete","/db",req.data);
 });
 
-//Login: get; post: dbabfrage mit login informationen; update: login, param change; 
-app.post("/login",(req,res,next)=>{
-    axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
-            .then((response)=>{
-                data=JSON.parse(res.data) //data.name 
-                keys=Object.keys(data);
-                for(a in keys){
-                    sessionStorage.setItem(a,data[""+a])
-                }
-                console.log("cookies from answere successfully loaded");
-                res.send(response.data);
-            })
-            .catch((error) => { 
-                console.log("Error loading cookies"); 
-                res.send(error.data);
-            }); 
-}); 
-app.post("/register",(req,res,next)=>{
-    ShortAxios(req,res,"post","/register",req.body);
-})
-
-app.delete("/logout",(req,res,next)=>{
-    //delete Session
-    req.logOut()
-    res.redirect("/login")
-})
-
 //Kommentar, Meldung
 app.get("/comment",(req,res,next)=>{
     ShortAxios(req,res,"get","/comment");
@@ -268,41 +241,108 @@ app.get("/like/:id",(req,res)=>{ //??Testen
 app.put("/like/:id", (req,res)=>{ //??Testen
     ShortAxios(req,res,"put","/like"+req.params.id,req.body);
 })
-//TEMPLATE
-app.get("/template",(req,res)=>{
-    ShortAxios(req,res,next,"get","/template");
-})
-app.post("/template",(req,res)=>{
-    ShortAxios(req,res,next,"post","/template",req.data);
-})
-app.put("/template", (req,res)=>{
-    ShortAxios(req,res,next,"put","/template",req.data);
-})
 
-// ASSET
+// 1.4) ASSET
+//Get all assets
 app.get("/asset",(req,res)=>{
     ShortAxios(req,res,"get","/asset");
 })
-app.get("/asset/:id",(req,res)=>{ //??Testen
-    ShortAxios(req,res,"get","/asset/"+req.params.id);
-})
-app.put("/asset/:id", (req,res)=>{ //??Testen
-    ShortAxios(req,res,"delete","/template/"+req.params.id,req.data); 
-})
+//Create new asset
 app.post("/asset",(req,res)=>{
     ShortAxios(req,res,"post","/asset",req.body);
 })
+//Get asset by ID
+app.get("/asset/:id",(req,res)=>{ //??Testen
+    ShortAxios(req,res,"get","/asset/"+req.params.id);
+})
+//Update Asset
+app.put("/asset/:id", (req,res)=>{ //??Testen
+    ShortAxios(req,res,"delete","/asset/"+req.params.id,req.data); 
+})
+//Delete Asset
+app.delete("/asset/:id",(req,res,next)=>{ 
+    ShortAxios(req,res,next,"delete","/asset",req.data);
+});
+//Report Asset
+app.post("/asset/report", (req, res)=>{
+    ShortAxios(req,res,"post","/asset",req.body);
+})
 
-//Marker 
+//1.5) Login & Register
+//Login: get; post: dbabfrage mit login informationen; update: login, param change;
+//Post Login
+app.post("/login",(req,res,next)=>{
+    axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
+            .then((response)=>{
+                data=JSON.parse(res.data) //data.name 
+                keys=Object.keys(data);
+                for(a in keys){
+                    sessionStorage.setItem(a,data[""+a])
+                }
+                console.log("cookies from answere successfully loaded");
+                res.send(response.data);
+            })
+            .catch((error) => { 
+                console.log("Error loading cookies"); 
+                res.send(error.data);
+            }); 
+}); 
+//Logout
+app.delete("/logout",(req,res,next)=>{
+    //delete Session
+    req.logOut()
+    res.redirect("/login")
+})
+//Register
+app.post("/register",(req,res,next)=>{
+    ShortAxios(req,res,"post","/register",req.body);
+})
+
+
+
+
+//1.6) TEMPLATE (Noch nicht in der API Dokumentation der Master vorhanden!)
+//Get all templates
+app.get("/template",(req,res)=>{
+    ShortAxios(req,res,next,"get","/template");
+})
+//Create new template
+app.post("/template",(req,res)=>{
+    ShortAxios(req,res,next,"post","/template",req.data);
+})
+//Get template by ID
+app.get("/template/:id",(req,res)=>{
+    ShortAxios(req,res,"get","/template/"+req.params.id);
+})
+//Change template by ID
+app.put("/template", (req,res)=>{
+    ShortAxios(req,res,next,"put","/template",req.data);
+})
+//Delte template by id
+app.delete("/template",(req,res,next)=>{ 
+    ShortAxios(req,res,next,"delete","/template",req.data);
+});
+
+
+
+//1.7) Marker
+//get all markers
 app.get("/marker",(req,res)=>{
     ShortAxios(req,res,"get","/marker");
 })
-app.get("/marker/:id",(req,res)=>{  //Testen
-    ShortAxios(req,res,"get","/marker/"+req.params.id);
-})
+//create new marker
 app.post("/marker",(req,res)=>{
     ShortAxios(req,res,"post","/marker",req.body);
 })
+//get marker by id
+app.get("/marker/:id",(req,res)=>{  //Testen
+    ShortAxios(req,res,"get","/marker/"+req.params.id);
+})
+//change marker by id
 app.put("/marker/:id", (req,res)=>{ 
     ShortAxios(req,res,"put","/marker/"+req.params.id,req.body);
 })
+//delete marker by id
+app.delete("/marker",(req,res,next)=>{ 
+    ShortAxios(req,res,next,"delete","/marker",req.data);
+});
