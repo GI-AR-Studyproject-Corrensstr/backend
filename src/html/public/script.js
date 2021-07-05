@@ -8,10 +8,15 @@
 
 // Funktionen fuer die Button auf der Seite index
 function login(){
-  /* */
+  var request = new XMLHttpRequest();
+  request.open("POST", true); //endpoint?
+  request.send(); // Text aus dem Formular muss hier rein
 }
+
 function weiterZurRegistrierung(){
-  /* */
+  var request = new XMLHttpRequest();
+  request.open("POST", true); //endpoint?
+  request.send(); // Text aus dem Formular muss hier rein
 }
 
 // Funktionen fuer die Button auf der Seite index_Registrierung
