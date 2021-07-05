@@ -1,9 +1,45 @@
 const express = require('express')
+const https = require('https');
+const fs = require('fs');
+var privateKey = fs.readFileSync('./SSL/key.pem', 'utf8'); 
+var certificate = fs.readFileSync('./SSL/cert.pem', 'utf8');
 require('dotenv').config()
 const axios = require('axios').default;
 const app= express()
 const sessionStorage = require("node-sessionstorage");
-var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
+//var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
+
+//Testen:
+//https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
+
+/**const ssloptions = {
+    key: fs.readFileSync('./SSL/key.pem'),
+    cert: fs.readFileSync('./SSL/cert.pem')
+  };
+*/
+
+var ssloptions = {key: privateKey, cert: certificate}; 
+
+const httpsAgent = new https.Agent(
+    ssloptions)
+    /**{
+    rejectUnauthorized: false, // (NOTE: this will disable client verification)
+    cert: fs.readFileSync("./usercert.pem"),
+    key: fs.readFileSync("./key.pem"),
+    passphrase: "YYY"
+})*/
+  
+ // axios.get(url, { httpsAgent })
+  
+  // or
+  
+  //const instance = axios.create({ httpsAgent })
+
+
+https.createServer(ssloptions, function (req, res) {
+    res.writeHead(200);
+    res.end("hello world\n");
+}).listen(8000);
 
 if (process.env.DB_HOST) {
     dbHost = process.env.DB_HOST;
@@ -89,7 +125,7 @@ function err(error,msgpth,a,res) {
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/"} //Testserver
+    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker"} //Testserver
     
         switch (a) {
         case "get":
@@ -162,23 +198,107 @@ eval(
     // `)();
 }
 
-app.get("/db",(req,res)=>{ 
+//1.1) 
+app.get("/db",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db");
     });
-app.post("/db",(req,res,next)=>{
+app.post("/db",(req,res,next)=>{ //add new suggestion
     ShortAxios(req,res,"post","/db",req.body);
     });
-    app.post("/dbByID",(req,res,next)=>{ //?? Params
-        ShortAxios(req,res,"post","/db",req.body);
-    });
-app.put("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"put","/db",req.body.data);
-});
-app.delete("/db",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"delete","/db",req.data);
-});
 
-//Login: get; post: dbabfrage mit login informationen; update: login, param change; 
+app.get("/db/:id",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id);
+    });
+app.put("/db/:id",(req,res,next)=>{  //change suggestion by ID 
+    ShortAxios(req,res,next,"put","/db/"+req.params.id,req.body.data);
+});
+app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
+    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.data);
+});
+app.get("/db/:id/vote",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/vote");
+    });
+app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/comment");
+    });
+app.get("/db/:id/report",(req,res)=>{  //get all suggestions
+    ShortAxios(req,res,"get","/db/"+req.params.id+"/report");
+    });
+
+    //1.2)
+//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
+app.get("/like",(req,res)=>{ //get all votes
+    ShortAxios(req,res,"get","/like");
+})
+app.post("/like",(req,res)=>{ //add new vote
+    ShortAxios(req,res,"post","/like",req.body);
+})
+//////////
+app.get("/like/:id",(req,res)=>{ //??Testen //get all vote by ID
+    ShortAxios(req,res,"get","/like/"+req.params.id);
+})
+app.put("/like/:id", (req,res)=>{ //??Testen //change vote by ID 
+    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
+})
+app.delete("/like/:id", (req,res)=>{ //??Testen //delete vote by ID 
+    ShortAxios(req,res,"delete","/like"+req.params.id,req.body);
+})
+
+// 1.3)
+//Kommentar, Meldung
+app.get("/comment",(req,res,next)=>{ //get all comments
+    ShortAxios(req,res,"get","/comment");
+})
+app.post("/comment",(req,res,next)=>{ //create new comment
+    ShortAxios(req,res,next,"post","/comment",req.body);
+})
+////////
+app.get("/comment/:id",(req,res,next)=>{ //??Testen //get comment by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id);
+})
+app.put("/comment/:id", (req,res,next)=>{ //??Testen //change comment by ID
+    ShortAxios(req,res,next,"put","/comment/"+req.params.id,req.body);
+})
+app.delete("/comment/:id", (req,res,next)=>{ //??Testen //delete comment by ID
+    ShortAxios(req,res,next,"delete","/comment/"+req.params.id,req.body);
+})
+app.get("/comment/:id/vote",(req,res)=>{  //get all votes by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id+"/vote");
+    });
+app.get("/comment/:id/report",(req,res)=>{  //get all reports by ID
+    ShortAxios(req,res,"get","/comment/"+req.params.id+"/report");
+    });
+
+
+// 1.4) ASSET
+//Get all assets
+app.get("/asset",(req,res)=>{
+    ShortAxios(req,res,"get","/asset");
+})
+//Create new asset
+app.post("/asset",(req,res)=>{
+    ShortAxios(req,res,"post","/asset",req.body);
+})
+//Get asset by ID
+app.get("/asset/:id",(req,res)=>{ //??Testen
+    ShortAxios(req,res,"get","/asset/"+req.params.id);
+})
+//Update Asset
+app.put("/asset/:id", (req,res)=>{ //??Testen
+    ShortAxios(req,res,"delete","/asset/"+req.params.id,req.data); 
+})
+//Delete Asset
+app.delete("/asset/:id",(req,res,next)=>{ 
+    ShortAxios(req,res,next,"delete","/asset",req.data);
+});
+//Report Asset
+app.post("/asset/report", (req, res)=>{
+    ShortAxios(req,res,"post","/asset",req.body);
+})
+
+//1.5) Login & Register
+//Login: get; post: dbabfrage mit login informationen; update: login, param change;
+//Post Login
 app.post("/login",(req,res,next)=>{
     axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
             .then((response)=>{
@@ -195,65 +315,62 @@ app.post("/login",(req,res,next)=>{
                 res.send(error.data);
             }); 
 }); 
-app.post("/register",(req,res,next)=>{
-    ShortAxios(req,res,"post","/register",req.body);
-})
-
+//Logout
 app.delete("/logout",(req,res,next)=>{
     //delete Session
     req.logOut()
     res.redirect("/login")
 })
-
-//Kommentar, Meldung
-app.get("/comment",(req,res,next)=>{
-    ShortAxios(req,res,"get","/comment");
-})
-app.get("/commentByID",(req,res,next)=>{ //??Params
-    ShortAxios(req,res,"get","/comment");
-})
-app.post("/comment",(req,res,next)=>{
-    ShortAxios(req,res,next,"post","/comment",req.body);
-})
-app.put("/comment", (req,res,next)=>{ //??Params
-    ShortAxios(req,res,next,"put","/comment",req.body);
+//Register
+app.post("/register",(req,res,next)=>{
+    ShortAxios(req,res,"post","/register",req.body);
 })
 
-//Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
-app.get("/like",(req,res)=>{
-    ShortAxios(req,res,"get","/like");
-})
-app.get("/likeByID",(req,res)=>{ //?? Params
-    ShortAxios(req,res,"get","/like");
-})
-app.post("/like",(req,res)=>{
-    ShortAxios(req,res,"post","/like",req.body);
-})
-app.put("/like", (req,res)=>{ //??Params
-    ShortAxios(req,res,"put","/like",req.body);
-})
-//TEMPLATE
+
+
+
+//1.6) TEMPLATE (Noch nicht in der API Dokumentation der Master vorhanden!)
+//Get all templates
 app.get("/template",(req,res)=>{
     ShortAxios(req,res,next,"get","/template");
 })
+//Create new template
 app.post("/template",(req,res)=>{
     ShortAxios(req,res,next,"post","/template",req.data);
 })
+//Get template by ID
+app.get("/template/:id",(req,res)=>{
+    ShortAxios(req,res,"get","/template/"+req.params.id);
+})
+//Change template by ID
 app.put("/template", (req,res)=>{
     ShortAxios(req,res,next,"put","/template",req.data);
 })
-
-// ASSET
-app.get("/asset",(req,res,next)=>{
-    ShortAxios(req,res,"get","/asset");
-})
-app.get("/assetByID",(req,res,next)=>{ //??==> Parameter übergeben
-    ShortAxios(req,res,"get","/asset");
-})
-app.put("/template", (req,res,next)=>{ //??==> Parameter übergeben
+//Delte template by id
+app.delete("/template",(req,res,next)=>{ 
     ShortAxios(req,res,next,"delete","/template",req.data);
-    next(); 
+});
+
+
+
+//1.7) Marker
+//get all markers
+app.get("/marker",(req,res)=>{
+    ShortAxios(req,res,"get","/marker");
 })
-app.post("/asset",(req,res,next)=>{
-    ShortAxios(req,res,"post","/asset",req.body);
+//create new marker
+app.post("/marker",(req,res)=>{
+    ShortAxios(req,res,"post","/marker",req.body);
 })
+//get marker by id
+app.get("/marker/:id",(req,res)=>{  //Testen
+    ShortAxios(req,res,"get","/marker/"+req.params.id);
+})
+//change marker by id
+app.put("/marker/:id", (req,res)=>{ 
+    ShortAxios(req,res,"put","/marker/"+req.params.id,req.body);
+})
+//delete marker by id
+app.delete("/marker",(req,res,next)=>{ 
+    ShortAxios(req,res,next,"delete","/marker",req.data);
+});
