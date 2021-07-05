@@ -121,7 +121,7 @@ function err(error) {
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/","/like":"/api/vote","/comment":"/api/comment","/login":"/","/marker":"/api/marker"} //Testserver
+    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/","/marker":"/api/marker"} //Testserver
     
         switch (a) {
         case "get":
@@ -241,7 +241,7 @@ app.delete("/logout",(req,res,next)=>{
 app.get("/comment",(req,res,next)=>{
     ShortAxios(req,res,"get","/comment");
 })
-app.get("/commentByID/:id",(req,res,next)=>{ //??Testen
+app.get("/comment/:id",(req,res,next)=>{ //??Testen
     ShortAxios(req,res,"get","/comment/"+req.params.id);
 })
 app.post("/comment",(req,res,next)=>{
@@ -255,11 +255,11 @@ app.put("/comment/:id", (req,res,next)=>{ //??Testen
 app.get("/like",(req,res)=>{
     ShortAxios(req,res,"get","/like");
 })
-app.get("/likeByID/:id",(req,res)=>{ //??Testen
-    ShortAxios(req,res,"get","/like/"+req.params.id);
-})
 app.post("/like",(req,res)=>{
     ShortAxios(req,res,"post","/like",req.body);
+})
+app.get("/like/:id",(req,res)=>{ //??Testen
+    ShortAxios(req,res,"get","/like/"+req.params.id);
 })
 app.put("/like/:id", (req,res)=>{ //??Testen
     ShortAxios(req,res,"put","/like"+req.params.id,req.body);
@@ -276,17 +276,16 @@ app.put("/template", (req,res)=>{
 })
 
 // ASSET
-app.get("/asset",(req,res,next)=>{
+app.get("/asset",(req,res)=>{
     ShortAxios(req,res,"get","/asset");
 })
-app.get("/assetByID/:id",(req,res,next)=>{ //??Testen
+app.get("/asset/:id",(req,res)=>{ //??Testen
     ShortAxios(req,res,"get","/asset/"+req.params.id);
 })
-app.put("/template/:id", (req,res,next)=>{ //??Testen
-    ShortAxios(req,res,"delete","/template/"+req.params.id,req.data);
-    next(); 
+app.put("/asset/:id", (req,res)=>{ //??Testen
+    ShortAxios(req,res,"delete","/template/"+req.params.id,req.data); 
 })
-app.post("/asset",(req,res,next)=>{
+app.post("/asset",(req,res)=>{
     ShortAxios(req,res,"post","/asset",req.body);
 })
 
@@ -294,12 +293,12 @@ app.post("/asset",(req,res,next)=>{
 app.get("/marker",(req,res)=>{
     ShortAxios(req,res,"get","/marker");
 })
-app.get("/markerByID/:id",(req,res)=>{  //Testen
+app.get("/marker/:id",(req,res)=>{  //Testen
     ShortAxios(req,res,"get","/marker/"+req.params.id);
 })
 app.post("/marker",(req,res)=>{
     ShortAxios(req,res,"post","/marker",req.body);
 })
-app.put("/marker", (req,res)=>{ 
-    ShortAxios(req,res,"put","/marker",req.body);
+app.put("/marker/:id", (req,res)=>{ 
+    ShortAxios(req,res,"put","/marker/"+req.params.id,req.body);
 })
