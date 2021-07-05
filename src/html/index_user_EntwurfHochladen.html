@@ -60,7 +60,9 @@
         <label for"Draft"> Einen Entwurf hochladen: </label>
         <input type="file" id="Draft" name="Draft">
         <br>
-        <button type="button" onclick="uploadDraft()" class="btn btn-default">Entwurf hochladen</button>
+        <input type="checkbox" id="rechtlich" name="rechtlich" value="rechtlich" required>
+        <label for="rechtlich"> Ich bestätige hiermit, dass es rechtlich in Ordnung ist diesen Entwurf hochzuladen.</label><br>
+        <button type="submit" onclick="uploadDraft()" class="btn btn-default">Entwurf hochladen</button>
         <button type="button" onclick="deleteDraft()" class="btn btn-default">Entwurf löschen</button>
       </div>
     </div>
