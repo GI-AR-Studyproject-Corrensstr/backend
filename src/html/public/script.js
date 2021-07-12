@@ -6,17 +6,32 @@
 // jshint -W083
 "use strict";
 
+
+var $password = $('#Password');
+var $username = $('#Username');
+
+$('#loginButton').on('click', function(){
+
+var data = {
+v1: $password.val(),
+v2: $username.val(),
+};
+
+$.ajax({
+  type: 'POST',
+  url: '3000/login', // endpoint
+  data: data
+}
+);
+});
+
+
 // Funktionen fuer die Button auf der Seite index
 function login(){
-  var request = new XMLHttpRequest();
-  request.open("POST", true); //endpoint?
-  request.send(); // Text aus dem Formular muss hier rein
+  /* */
 }
-
 function weiterZurRegistrierung(){
-  var request = new XMLHttpRequest();
-  request.open("POST", true); //endpoint?
-  request.send(); // Text aus dem Formular muss hier rein
+  /* */
 }
 
 // Funktionen fuer die Button auf der Seite index_Registrierung
