@@ -198,7 +198,7 @@ app.put("/db/:id",(req,res,next)=>{  //change suggestion by ID
     ShortAxios(req,res,next,"put","/db/"+req.params.id,req.body.data);
 });
 app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
-    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.data);
+    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.body.data);
 });
 app.get("/db/:id/vote",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db/"+req.params.id+"/vote");
@@ -284,8 +284,10 @@ app.post("/asset/report", (req, res)=>{
 //1.5) Login & Register
 //Login: get; post: dbabfrage mit login informationen; update: login, param change;
 //Post Login
-app.post("/login",(req,res,next)=>{
-    axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
+app.post("/login",(req,res)=>{
+    //axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
+    req.body.data=d;
+    axios.post("http://"+dbHost+":"+port+"/api/login/",{...d}) //name:MaxMustermann, passwort:Passwort123 HASHED!
             .then((response)=>{
                 data=JSON.parse(res.data) //data.name 
                 keys=Object.keys(data);
