@@ -29,8 +29,8 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
-  port="3040"; //Testumgebung
-  //port="80"; //Masterserver
+  //port="3040"; //Testumgebung
+  port="80"; //Masterserver
 
 
 //bibs
