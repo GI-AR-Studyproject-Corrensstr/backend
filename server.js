@@ -1,4 +1,5 @@
 const express = require('express')
+const http = require ('http');
 const https = require('https');
 const fs = require('fs');
 var privateKey = fs.readFileSync('./SSL/key.pem', 'utf8'); 
@@ -20,34 +21,16 @@ const sessionStorage = require("node-sessionstorage");
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
-const httpsAgent = new https.Agent(
-    ssloptions)
-    /**{
-    rejectUnauthorized: false, // (NOTE: this will disable client verification)
-    cert: fs.readFileSync("./usercert.pem"),
-    key: fs.readFileSync("./key.pem"),
-    passphrase: "YYY"
-})*/
-  
- // axios.get(url, { httpsAgent })
-  
-  // or
-  
-  //const instance = axios.create({ httpsAgent })
-
-
-https.createServer(ssloptions, function (req, res) {
-    res.writeHead(200);
-    res.end("hello world\n");
-}).listen(8000);
+http.createServer(app).listen(3002,() => console.log("listening on port "+ 3000+ " for HTTP! :)"));
+https.createServer(ssloptions, app).listen(3001,() => console.log("listening on port "+ 3001+ " for HTTPS! :)"));
 
 if (process.env.DB_HOST) {
     dbHost = process.env.DB_HOST;
   } else {
     dbHost = 'localhost';
   }
-  //port="3040"; //Testumgebung
-  port="8000"; //Masterserver
+  port="3040"; //Testumgebung
+  //port="80"; //Masterserver
 
 
 //bibs
@@ -62,7 +45,7 @@ app.use('/jquery', express.static(__dirname+"/node_modules/jquery/dist/"));
 //datenbank enpunkt einbinden ?
 
 //https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true}));
 
 
 app.use("/html",express.static(__dirname+"/src/html/"));
@@ -103,11 +86,11 @@ app.get("/" ,(req,res,next)=>{
  * Errorhandler, nur interne Funktion für ShortAxios um viel reduntanter Schreibarbeit zu ersparen
  * @param {*} error 
  */
-function err(error) {
+function err(error,req,res,a,msgpth,d) {
     console.log(msgpth+" "+a+" error"); 
     if (error.response) {
       // Request made and server responded
-      console.log(error.response.data);
+      /*console.log(error.response.data);
       console.log(error.response.status);
       console.log(error.response.headers);
     } else if (error.request) {
@@ -116,17 +99,19 @@ function err(error) {
     } else {
       // Something happened in setting up the request that triggered an Error
       console.log('Error', error.message);
-      console.log(res._header);
+      console.log(res._header);*/
     }
     //console.log(error);
     res.send({ error })
 }
 
 
+
 function ShortAxios(req,res,a,msgpth,d){ 
+    var msgpth= msgpth;
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker","template":"api/asset/template"} //Testserver
-    
+    raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker","template":"api/asset/template"} //Testserver
+  
         switch (a) {
         case "get":
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
@@ -134,7 +119,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{err(error)});
+            .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         case "post":
             //axios mit options?
@@ -144,7 +129,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(response.data);
                 res.send(response.data);
                 })
-            .catch((error)=>{err(error)});
+            .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         case "put":
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
@@ -152,7 +137,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{err(error)});
+            .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         case "delete":
             axios.delete("http://"+dbHost+":"+port+raster[msgpth],{...d})
@@ -160,7 +145,7 @@ function ShortAxios(req,res,a,msgpth,d){
                 console.log(msgpth+" "+a+" successful");
 
             })
-            .catch((error)=>{err(error)});
+            .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         default:
             break;
