@@ -8,6 +8,15 @@ var server = app.listen(3040, () => console.log("listening on port " + 3040 + "!
 app.get("/test/:id",(req,res,next)=>{
 res.send(req.params.id)
 })
+app.get("/api/:rdpath",(req,res)=>{
+  res.redirect("/"+req.params.rdpath);
+})
+app.post("/api/:rdpath",(req,res)=>{
+  res.redirect("/"+req.params.rdpath);
+})
+app.put("/api/:rdpath",(req,res)=>{
+  res.redirect("/"+req.params.rdpath);
+})
 app.get("/" ,(req,res,next)=>{
     console.log("incoming get request")
     res.send("[GET Masterserver:Es klappt!]");
@@ -93,3 +102,20 @@ app.put("/Project", (req,res)=>{
   res.send(answereobject);
 }
 )
+app.get("/asset", (req,res)=>{
+  answereobject={
+      "data": {
+        "id": 1,
+        "created_at": "2021-06-11T23:11:55.000000Z",
+        "updated_at": "2021-06-11T23:11:55.000000Z",
+        "name": "Qui.",
+        "description": "Vel minima.",
+        "content": "Sed amet cum quo.",
+        "visible": 0,
+        "is_event": 1,
+        "start_time": "2021-07-06 16:55:26",
+        "end_time": "2021-09-12 07:40:04"
+      }
+    }
+    res.send(answereobject);
+})
