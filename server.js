@@ -122,6 +122,22 @@ function err(error,msgpth,a,res) {
     res.send({ error })
 }
 
+//Frontend
+app.use("/public",express.static(__dirname+"/src"));
+var options = {
+    dotfiles: 'ignore',
+    etag: false,
+    extensions: ['htm', 'html'],
+    index: false,
+    redirect: false
+    }
+app.use("/",express.static(__dirname+"/src/html/", options)) //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+app.get("/",(req,res)=>{
+    res.redirect("/index");
+})
+////////////Webseiten///////////////////////////////////
+//
+//Website-Startseite
 
 function ShortAxios(req,res,a,msgpth,d){ 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
