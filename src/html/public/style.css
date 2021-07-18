@@ -32,3 +32,78 @@ ansicht{ /*used only in index_Login.html */
   font-weight: bold;
   font-family: arial, sans-serif;
 }
+
+
+
+#view {
+    float:right;
+
+}
+#wrapper {
+    width: 100%;
+    height: 80px;
+    border: 0px solid black;
+    overflow: hidden;
+    float:right;
+}
+#first {
+    /*width: 150px;*/
+    float:left;
+    border: 2px solid white;
+}
+#second {
+    /*width: 100px;*/
+    border: 2px solid white;
+    float: left;
+}
+#third {
+    /*width: 33.33%;*/
+    border: 2px solid white;
+    float: left;
+}
+#view {
+  float:right;
+}
+#AR {
+  border: 1px solid black;
+  width: 100%;
+}
+#placeholder {
+  width: 100%;
+  height: auto;
+}
+.lbutton {
+  display: flex;
+  height: 50px;
+  padding: 0;
+  background: #909090;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lbutton:hover {
+  background: #0490FB;
+}
+
+.lbutton:active {
+  background: #1469AA;
+}
+
+.lbutton__text,
+.lbutton__icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #000;
+  height: 100%;
+}
+
+.lbutton__icon {
+  font-size: 1.5em;
+  background: rgba(0, 0, 0, 0.08);
+}

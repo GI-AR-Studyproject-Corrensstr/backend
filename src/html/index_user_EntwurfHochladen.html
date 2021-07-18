@@ -13,7 +13,7 @@
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <!-- <link rel="stylesheet" href="../bootstrap/css/bootstrap.css"> -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="src/public/style.css">
+  <link rel="stylesheet" href="src/public/style.css"> <!-- href="src/style.css" -->
 </head>
 
 <body>
@@ -24,8 +24,21 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
       <ul class="nav navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_Entwurfsuebersicht">Entwurfsübersicht</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_EntwurfAnsehen">Entwurf ansehen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index_user_EntwurfHochladen">Entwurf hochladen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/index" onclick="delete_logged_User()">Logout</a> <!-- provisorischer Logout, aktuell Link zur Startseite -->
+        </li>
       </ul>
     </div>
   </nav>
@@ -43,50 +56,38 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-6">
-      <a class="nav-link" href="/index_guest_Entwurfsuebersicht">Weiter als Gast</a>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <label for"Draft"> Einen Entwurf hochladen: </label>
+        <input type="file" id="Draft" name="Draft" accept="image/png, image/tiff, image/jpeg, image/gif, .gltf, .glb">
+        <br>
+        <input type="checkbox" id="rechtlich" name="rechtlich" value="rechtlich" required>
+        <label for="rechtlich"> Ich bestätige hiermit, dass es rechtlich in Ordnung ist diesen Entwurf hochzuladen.</label><br>
+        <button type="submit" onclick="uploadDraft()" class="btn btn-default">Entwurf hochladen</button>
+        <button type="button" onclick="deleteDraft()" class="btn btn-default">Entwurf löschen</button>
+      </div>
     </div>
 
     <br>
 
     <div class="col-sm-6">
-      <form action="form.html" method="post">
-        <div class="form-group">
-          <label for="username">Benutzername:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
-        </div>
-
-        <div class="form-group">
-          <label for="password">Passwort:</label>
-          <input type="password" class="form-control" id="Password" required>
-        </div>
-
-        <div class="form-group">
-        <a class="nav-link" href="/index_user_Entwurfsuebersicht">aktueller Login (über diesen Link, auf Dauer Login über den Button möglich...)</a>
-        <button type="submit" onclick="login()" class="btn btn-default">Login</button>
-
-        <br><br>
-
-          <label for="password">Sind Sie noch nicht registriert?</label>
-          <a class="nav-link" href="/index_Registrierung">Weiter zur Registrierung (über diesen Link, auf Dauer weiterZurRegistrierung über den Button möglich...)</a>
-          <button type="button" onclick="weiterZurRegistrierung()" class="btn btn-default">Weiter zur Registrierung</button>
+      <form>
+        <h2 id = "ansicht">Benutzeransicht</h2>
+        </form>
       </div>
-
-      </form>
-      </div>
-      </div>
-   </div>
+    </div>
+  </div>
 <!-- /container -->
 
-<br><br>
-
-<!-- footer -->
-<footer class="container-fluid text-center">
-  <p> <b> Impressum </b> </p>
-  <p> (...)
-    <span class="footer-separator">|</span> 2021
     <br><br>
-</footer>
-<!-- /footer -->
+
+    <!-- footer -->
+    <footer class="container-fluid text-center">
+      <p> <b> Impressum </b> </p>
+      <p> (...)
+        <span class="footer-separator">|</span> 2021
+          <br><br>
+    </footer>
+    <!-- /footer -->
 
 <!-- The following script is mandatory (Hamburger-Menu), do not delete-->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -100,8 +101,6 @@ crossorigin="anonymous"></script> -->
 integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
 crossorigin="anonymous"></script>
 
-<!-- <script src="../jquery/jquery.min.js"> </script> -->
-<!-- <script src="../bootstrap/js/bootstrap.min.js"> </script> -->
 <script src="server.js"> </script>
 </body>
 

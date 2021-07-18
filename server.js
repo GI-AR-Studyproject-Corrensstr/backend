@@ -22,20 +22,20 @@ app.use("/html",express.static(__dirname+"/src/html"));
 
 //Frontend
 app.use("/public",express.static(__dirname+"/src"));
-
-//Websites
-app.get("/index" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index.html");
-  });
-app.get("/index_Registrierung" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Registrierung.html");
-  });
-app.get("/index_Gastansicht" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Gastansicht.html");
-  });
-app.get("/index_Benutzeransicht" ,(req,res)=>{
-    res.sendFile(__dirname+"/src/html/index_Benutzeransicht.html");
-  });
+var options = {
+    dotfiles: 'ignore',
+    etag: false,
+    extensions: ['htm', 'html'],
+    index: false,
+    redirect: false
+    }
+app.use("/",express.static(__dirname+"/src/html/", options)) //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+app.get("/",(req,res)=>{
+    res.redirect("/index");
+})
+////////////Webseiten///////////////////////////////////
+//
+//Website-Startseite
 
 //Entwurfs-Datenbank: get; post:dbabfrage mit parametern; update: parameter auswahl, param change; delete: params
 app.get("/db",(req,res)=>{

@@ -11,7 +11,7 @@
   <!-- This script is mandatory (Hamburger-Menu), do not delete-->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+  <!-- <link rel="stylesheet" href="../bootstrap/css/bootstrap.css"> -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="src/public/style.css"> <!-- href="src/style.css" -->
 </head>
@@ -19,7 +19,7 @@
 <body>
   <!-- navbar -->
   <nav class="navbar navbar-expand-md navbar-dark navbar-inverse">
-    <a class="navbar-brand">Menu</a>
+    <a class="navbar-brand" class="nav-link" href="/index">Home</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -27,9 +27,6 @@
     <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
       <ul class="nav navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="/index">Startseite</a>
-        </li>
         <li class="nav-item">
           <a class="nav-link" href="/index_Registrierung">Registrierung</a>
         </li>
@@ -59,16 +56,25 @@
       <form>
         <h2 id = "ansicht">Registrierung</h2>
         <div class="form-group">
-          <label for="username">Username:<br></label>
-          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp"
-          placeholder="Specify a username, for example: Max Mustermann">
-          <small id="emailHelp" class="form-text text-muted">Vor- und Nachname.</small>
-        </div>
+          <label for="username">Benutzername:<br></label>
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required> <!-- optional: placeholder="Specify a username, for example: Max Mustermann" -->
+          <small id="emailHelp" class="form-text text-muted">Alle Aktivitäten auf unseren Webseiten laufen nur über den Benutzernamen.</small>
 
-        <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" class="form-control" id="Password" placeholder="Enter your password">
-          <small id="emailHelp" class="form-text text-muted">Never give your password to others.</small>
+          <label for="username">Name:<br></label>
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
+
+          <label for="username">Vorname:<br></label>
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
+
+          <label for="username">E-Mail-Adresse:<br></label>
+          <input type="email" class="form-control" id="Username" aria-describedby="emailHelp" required>
+
+          <label for="password">Passwort:</label>
+          <input type="password" class="form-control" id="Password" required>
+        </div>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="submit" onclick="createUser()" class="btn btn-default">Registrierung abschließen</button>
+          <button type="button" onclick="deleteInputs()" class="btn btn-default">Eingaben löschen</button>
         </div>
 
         </form>
@@ -92,17 +98,17 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
     integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script> -->
     <!-- The following script is mandatory (Hamburger-Menu), do not delete-->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
     integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
     crossorigin="anonymous"></script>
 
+    <!-- <script src="../jquery/jquery.min.js"> </script> -->
+    <!-- <script src="../bootstrap/js/bootstrap.min.js"> </script> -->
     <script src="server.js"> </script>
-    <script src="../jquery/jquery.min.js"> </script>
-    <script src="../bootstrap/js/bootstrap.min.js"> </script>
   </body>
 
   </html>
