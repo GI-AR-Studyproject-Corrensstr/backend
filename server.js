@@ -297,7 +297,7 @@ app.post("/login",(req,res)=>{
             })
             .catch((error) => { 
                 console.log("Error loading cookies"); 
-                err(error,req,res,a,msgpth,d);
+                err(error,req,res,"login",msgpth,d);
             }); 
 }); 
 app.get("/ss",(req,res)=>{
