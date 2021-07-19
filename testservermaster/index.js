@@ -12,6 +12,7 @@ app.get("/api/:rdpath",(req,res)=>{
   res.redirect("/"+req.params.rdpath);
 })
 app.post("/api/:rdpath",(req,res)=>{
+  console.log("redirect auf :"+"/"+req.params.rdpath);
   res.redirect("/"+req.params.rdpath);
 })
 app.put("/api/:rdpath",(req,res)=>{
@@ -28,6 +29,10 @@ app.post("/" ,(req,res,next)=>{
     res.send(req.body);
     //res.send("[POST Masterserver:Es klappt!]");
     })
+app.post("/suggestion",(req,res)=>{
+      console.log("/suggestion")
+      res.redirect("/project");
+    })
 app.post("/register", (req,res)=>{
     answereobject={
         "data": {
@@ -42,6 +47,7 @@ app.post("/register", (req,res)=>{
 })
 
 app.post("/login", (req,res)=>{
+  console.log("login")
     answereobject={
         "data": {
           "id": 55,
@@ -54,7 +60,7 @@ app.post("/login", (req,res)=>{
     res.send(answereobject);
 })
 // localhost/Project/ID/
-app.get("/Project", (req,res)=>{
+app.get("/project", (req,res)=>{
     answereobject={
         "data": {
           "id": 1,
