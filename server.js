@@ -8,9 +8,12 @@ require('dotenv').config()
 const axios = require('axios').default;
 const app= express()
 const sessionStorage = require("node-sessionstorage");
+
+/*app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());/*
+
 //var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 
-//Testen:
 //https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
 
 /**const ssloptions = {
@@ -18,10 +21,12 @@ const sessionStorage = require("node-sessionstorage");
     cert: fs.readFileSync('./SSL/cert.pem')
   };
 */
+//port="3040"; //Testumgebung
+port="80"; //Masterserver
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
-http.createServer(app).listen(3002,() => console.log("listening on port "+ 3000+ " for HTTP! :)"));
+http.createServer(app).listen(3000,() => console.log("listening on port "+ 3000+ " for HTTP! :)"));
 https.createServer(ssloptions, app).listen(3001,() => console.log("listening on port "+ 3001+ " for HTTPS! :)"));
 
 if (process.env.DB_HOST) {
@@ -29,8 +34,7 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
-  //port="3040"; //Testumgebung
-  port="80"; //Masterserver
+
 
 
 //bibs
@@ -46,6 +50,10 @@ app.use('/jquery', express.static(__dirname+"/node_modules/jquery/dist/"));
 
 //https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
 app.use(express.urlencoded({ extended: true}));
+//app.use(express.json());
+//https://stackoverflow.com/questions/9177049/express-js-req-body-undefined
+//var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 
 
 app.use("/html",express.static(__dirname+"/src/html/"));
@@ -68,20 +76,7 @@ app.get("/" ,(req,res,next)=>{
 // servername/api/API ENDPOINTS base64 codierung für Bilder
 
 //https://brandoncc.medium.com/how-to-handle-unhandledrejection-errors-using-axios-da82b54c6356
-/*axios.interceptors.response.use(
-    response => response,
-    error => {
-      throw error
-    }
-  )*/
 
-  /*axios.interceptors.response.use(function (response) {
-    // Do something with response data
-    return response;
-  }, function (error) {
-    // Do something with response error
-    return Promise.reject(error);
-  });*/
 /**
  * Errorhandler, nur interne Funktion für ShortAxios um viel reduntanter Schreibarbeit zu ersparen
  * @param {*} error 
@@ -90,7 +85,7 @@ function err(error,req,res,a,msgpth,d) {
     console.log(msgpth+" "+a+" error"); 
     if (error.response) {
       // Request made and server responded
-      /*console.log(error.response.data);
+      console.log(error.response.data);
       console.log(error.response.status);
       console.log(error.response.headers);
     } else if (error.request) {
@@ -99,7 +94,7 @@ function err(error,req,res,a,msgpth,d) {
     } else {
       // Something happened in setting up the request that triggered an Error
       console.log('Error', error.message);
-      console.log(res._header);*/
+      console.log(res._header);
     }
     //console.log(error);
     res.send({ error })
@@ -123,13 +118,15 @@ function ShortAxios(req,res,a,msgpth,d){
             break;
         case "post":
             //axios mit options?
+            console.log("http://"+dbHost+":"+port+raster[msgpth]+","+JSON.stringify({...d}));
+            console.log(raster[msgpth]);
             axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 console.log(response.data);
                 res.send(response.data);
                 })
-            .catch((error)=>{err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{/*console.log(error);*/err(error,req,res,a,msgpth,d)});
             break;
         case "put":
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
@@ -198,7 +195,7 @@ app.put("/db/:id",(req,res,next)=>{  //change suggestion by ID
     ShortAxios(req,res,next,"put","/db/"+req.params.id,req.body.data);
 });
 app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
-    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.data);
+    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.body.data);
 });
 app.get("/db/:id/vote",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db/"+req.params.id+"/vote");
@@ -284,22 +281,31 @@ app.post("/asset/report", (req, res)=>{
 //1.5) Login & Register
 //Login: get; post: dbabfrage mit login informationen; update: login, param change;
 //Post Login
-app.post("/login",(req,res,next)=>{
-    axios.post("http://"+dbHost+":"+port+"{"+d+"}") //name:MaxMustermann, passwort:Passwort123 HASHED!
+app.post("/login",(req,res)=>{
+    //axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
+    d=req.body;
+    console.log("http://"+dbHost+":"+port+"/login");
+    axios.post("http://"+dbHost+":"+port+"/login/",{...d}) //name:MaxMustermann, passwort:Passwort123 HASHED!
             .then((response)=>{
-                data=JSON.parse(res.data) //data.name 
+                data=response.data.data;
                 keys=Object.keys(data);
-                for(a in keys){
-                    sessionStorage.setItem(a,data[""+a])
+                for(a of keys){
+                    sessionStorage.setItem(a,data[a])
                 }
                 console.log("cookies from answere successfully loaded");
                 res.send(response.data);
             })
             .catch((error) => { 
                 console.log("Error loading cookies"); 
+                //console.log(error)
                 res.send(error.data);
             }); 
 }); 
+app.get("/ss",(req,res)=>{
+    temp= sessionStorage.getItem("first_name")
+    console.log(temp);
+    res.send(temp);
+})
 //Logout
 app.delete("/logout",(req,res,next)=>{
     //delete Session
