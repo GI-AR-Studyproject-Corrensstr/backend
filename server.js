@@ -23,6 +23,7 @@ app.use(bodyParser.json());/*
 */
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
+var global=this;
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
@@ -35,9 +36,9 @@ if (process.env.DB_HOST) {
     dbHost = 'localhost';
   }
 console.log("dbHost="+dbHost)
-const raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker","/template":"api/asset/template"}
+const rasterX={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/ID/vote","/comment":"/api/ID/comment","/login":"/api/login","/marker":"/api/marker","/template":"api/asset/template"}
 function asd(){
-    console.log(raster);
+    console.log(rasterX);
 }
 asd();
 
@@ -107,11 +108,19 @@ function err(error,req,res,a,msgpth,d) {
  
 
 function ShortAxios(req,res,a,msgpth,d,id){
+    let raster={"":""}; 
+    raster=rasterX;
+    console.log(raster);
     console.log("eingang shortaxios id:"+id);
     if(id!=undefined){id="/"+id;}else{id="";}
     console.log("ausgang shortaxios id:"+id);
     console.log("msgpth:"+msgpth);
-    var msgpth= msgpth;
+
+    if(raster[msgpth].includes("/ID")){
+        raster[msgpth]=raster[msgpth].replace("/ID",id);
+        console.log(raster);
+        console.log(rasterX);
+    }
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
 
         switch (a) {
@@ -136,7 +145,9 @@ function ShortAxios(req,res,a,msgpth,d,id){
             .catch((error)=>{/*console.log(error);*/err(error,req,res,a,msgpth,d)});
             break;
         case "put":
-            axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
+            console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id+","+JSON.stringify({...d}));
+            console.log(d)
+            axios.put("http://"+dbHost+":"+port+raster[msgpth]+id,{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
@@ -192,26 +203,32 @@ eval(
 app.get("/db",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db");
     });
-app.post("/db",(req,res,next)=>{ //add new suggestion
+app.post("/db",(req,res)=>{ //add new suggestion
     ShortAxios(req,res,"post","/db",req.body);
     });
 
-app.get("/db:id",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db"+req.params.id);
+app.get("/db/:id",(req,res)=>{  //get all suggestions
+    console.log("get by ID")
+    ShortAxios(req,res,"get","/db","",req.params.id);
     });
-app.put("/db:id",(req,res,next)=>{  //change suggestion by ID 
-    ShortAxios(req,res,next,"put","/db"+req.params.id,req.body.data);
+
+app.put("/db/:id",(req,res)=>{  //change suggestion by ID ShortAxios(req,res,a,msgpth,d,id){
+    console.log("put input: "+req.body);
+    console.log("put input for id:"+ req.params.id);
+    ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
-app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
-    ShortAxios(req,res,next,"delete","/db",req.body.data,req.params.id);
+app.delete("/db/:id",(req,res)=>{ //delete a suggestion
+    ShortAxios(req,res,"delete","/db","",req.params.id);
 });
-app.get("/db:id/vote",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db"+req.params.id+"/vote");
+
+app.get("/db/:id/like",(req,res)=>{  //get all votes of an suggestion
+    console.log("get /db/:id/vote: "+ req.params.id);
+    ShortAxios(req,res,"get","/db/like","",req.params.id);
     });
-app.get("/db:id/comment",(req,res)=>{  //get all suggestions
+app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db"+req.params.id+"/comment");
     });
-app.get("/db:id/report",(req,res)=>{  //get all suggestions
+app.get("/db/:id/report",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db"+req.params.id+"/report");
     });
 
