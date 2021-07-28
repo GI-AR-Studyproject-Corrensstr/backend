@@ -120,22 +120,13 @@ function ShortAxios(req,res,a,msgpth,d,id){
     let raster={"":""}; 
     raster=Object.assign({},rasterX);
     //console.log(raster);
-    console.log("eingang shortaxios id:"+id);
     if(id!=undefined){
         id="/"+id;
-        console.log("id!=undefined, Raster neu zuweisen wenn ID enthalten");
-        console.log("raster[msgpth].includes(\"/ID\")"+raster[msgpth].includes("/ID"))
-        console.log(raster);
         if(raster[msgpth].includes("/ID")){
-            console.log("Vorher:"+raster[msgpth])
             raster[msgpth]=raster[msgpth].replace("/ID",id);
-            console.log("Nachher:"+raster[msgpth])
         }else{
         raster[msgpth]=raster[msgpth]+id;}
         }else{id="";}
-    console.log("ausgang shortaxios id:"+id);
-    console.log("msgpth:"+msgpth);
-    console.log(raster);
 
 
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
@@ -151,7 +142,6 @@ function ShortAxios(req,res,a,msgpth,d,id){
             .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         case "post":
-            //axios mit options?
             console.log("http://"+dbHost+":"+port+raster[msgpth]+","+JSON.stringify({...d}));
             axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
@@ -162,8 +152,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
             .catch((error)=>{/*console.log(error);*/err(error,req,res,a,msgpth,d)});
             break;
         case "put":
-            console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id+","+JSON.stringify({...d}));
-            console.log(d)
+            console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id,d);
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
@@ -172,7 +161,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
             .catch((error)=>{res.send(error.response.data)/*err(error,req,res,a,msgpth,d)*/});
             break;
         case "delete":
-            console.log("delete: http://"+dbHost+":"+port+raster[msgpth]+id)
+            console.log("delete: http://"+dbHost+":"+port+raster[msgpth])
             axios.delete("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
@@ -225,13 +214,10 @@ app.post("/db",(req,res)=>{ //add new suggestion
     });
 
 app.get("/db/:id",(req,res)=>{  //get all suggestions
-    console.log("get by ID")
     ShortAxios(req,res,"get","/db","",req.params.id);
     });
 
 app.put("/db/:id",(req,res)=>{  //change suggestion by ID ShortAxios(req,res,a,msgpth,d,id){
-    console.log("put input: "+req.body);
-    console.log("put input for id:"+ req.params.id);
     ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
 app.delete("/db/:id",(req,res)=>{ //delete a suggestion
@@ -239,7 +225,6 @@ app.delete("/db/:id",(req,res)=>{ //delete a suggestion
 });
 
 app.get("/db/:id/like",(req,res)=>{  //get all votes of an suggestion
-    console.log("get /db/:id/vote: "+ req.params.id);
     ShortAxios(req,res,"get","/db/like","",req.params.id);
     });
 app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
@@ -330,10 +315,8 @@ app.post("/asset/:id/report", (req, res)=>{
 app.post("/login",(req,res)=>{
     //axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
     d=req.body;
-    console.log("http://"+dbHost+":"+port+rasterX["/login"]);
-    console.log({...d})
-
-    axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d}) //name:MaxMustermann, passwort:Passwort123 HASHED!
+    console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
+    axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
             .then((response)=>{
                 console.log("response got")
                 console.log("login response data:"+ response.data);
@@ -368,8 +351,14 @@ app.get("/ss",(req,res)=>{
 //Logout
 app.delete("/logout",(req,res)=>{
     //delete Session
-    req.logOut()
-    res.redirect("/login")
+    try {
+        for (a of sessionStorage.getItem("keys")) {
+            sessionStorage.removeItem(a);
+        }
+        sessionStorage.removeItem("keys");
+        } catch(e){temp="Bitte zuerst anmelden"}
+        res.send("Session deleted");
+   // res.redirect("/login")
 })
 //Register
 app.post("/register",(req,res)=>{
