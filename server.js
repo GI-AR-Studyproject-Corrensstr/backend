@@ -248,15 +248,16 @@ app.get("/like",(req,res)=>{ //get all votes
 app.post("/like",(req,res)=>{ //add new vote
     ShortAxios(req,res,"post","/like",req.body);
 })
+
 //////////
 app.get("/like:id",(req,res)=>{ //??Testen //get all vote by ID
-    ShortAxios(req,res,"get","/like"+req.params.id);
+    ShortAxios(req,res,"get","/like","",req.params.id);
 })
 app.put("/like:id", (req,res)=>{ //??Testen //change vote by ID 
-    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
+    ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
 app.delete("/like:id", (req,res)=>{ //??Testen //delete vote by ID 
-    ShortAxios(req,res,"delete","/like"+req.params.id,req.body);
+    ShortAxios(req,res,"delete","/like","",req.params.id);
 })
 
 // 1.3)
