@@ -36,7 +36,7 @@ if (process.env.DB_HOST) {
     dbHost = 'localhost';
   }
 console.log("dbHost="+dbHost)
-const rasterX={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/ID/vote","/comment":"/api/ID/comment","/login":"/api/login","/marker":"/api/marker","/template":"api/asset/template"}
+const rasterX={"/asset":"/api/asset","/db/report":"/api/suggestion/ID/report","/db/comment":"/api/suggestion/ID/comment","/db/like":"/api/suggestion/ID/vote","/db":"/api/suggestion","/like":"/api/ID/vote","/comment":"/api/ID/comment","/login":"/api/login","/marker":"/api/marker","/template":"api/asset/template"}
 function asd(){
     console.log(rasterX);
 }
@@ -109,24 +109,32 @@ function err(error,req,res,a,msgpth,d) {
 
 function ShortAxios(req,res,a,msgpth,d,id){
     let raster={"":""}; 
-    raster=rasterX;
-    console.log(raster);
+    raster=Object.assign({},rasterX);
+    //console.log(raster);
     console.log("eingang shortaxios id:"+id);
-    if(id!=undefined){id="/"+id;}else{id="";}
+    if(id!=undefined){
+        id="/"+id;
+        console.log("id!=undefined, Raster neu zuweisen wenn ID enthalten");
+        console.log("raster[msgpth].includes(\"/ID\")"+raster[msgpth].includes("/ID"))
+        console.log(raster);
+        if(raster[msgpth].includes("/ID")){
+            console.log("Vorher:"+raster[msgpth])
+            raster[msgpth]=raster[msgpth].replace("/ID",id);
+            console.log("Nachher:"+raster[msgpth])
+        }else{
+        raster[msgpth]=raster[msgpth]+id;}
+        }else{id="";}
     console.log("ausgang shortaxios id:"+id);
     console.log("msgpth:"+msgpth);
+    console.log(raster);
 
-    if(raster[msgpth].includes("/ID")){
-        raster[msgpth]=raster[msgpth].replace("/ID",id);
-        console.log(raster);
-        console.log(rasterX);
-    }
+
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
 
         switch (a) {
         case "get":
-            console.log("get: http://"+dbHost+":"+port+raster[msgpth]+id);
-            axios.get("http://"+dbHost+":"+port+raster[msgpth]+id)
+            console.log("get: http://"+dbHost+":"+port+raster[msgpth]);
+            axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
@@ -226,10 +234,10 @@ app.get("/db/:id/like",(req,res)=>{  //get all votes of an suggestion
     ShortAxios(req,res,"get","/db/like","",req.params.id);
     });
 app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db"+req.params.id+"/comment");
+    ShortAxios(req,res,"get","/db/comment","",req.params.id);
     });
-app.get("/db/:id/report",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db"+req.params.id+"/report");
+app.post("/db/:id/report",(req,res)=>{  //report a suggestion, user_id und description 
+    ShortAxios(req,res,"post","/db/report",req.body,req.params.id);
     });
 
     //1.2)
