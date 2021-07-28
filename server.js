@@ -23,6 +23,7 @@ app.use(bodyParser.json());/*
 */
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
+var global=this;
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
@@ -34,8 +35,21 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
-
-
+console.log("dbHost="+dbHost)
+const rasterX={ "/asset":"/api/asset",
+                "/asset/report":"/api/asset/ID/report",
+                "/comment":"/api/comment",
+                "/comment/report":"/api/comment/ID/report",
+                "/comment/like":"/api/comment/ID/vote",
+                "/db/report":"/api/suggestion/ID/report",
+                "/db/comment":"/api/suggestion/ID/comment",
+                "/db/like":"/api/suggestion/ID/vote",
+                "/db":"/api/suggestion",
+                "/like":"/api/ID/vote",
+                "/login":"/api/login",
+                "/marker":"/api/marker",
+                "/template":"/api/asset/template",
+                "/register":"/api/register"}
 
 //bibs
 app.use('/bootstrap', express.static(__dirname+'/node_modules/bootstrap/dist'));
@@ -97,18 +111,29 @@ function err(error,req,res,a,msgpth,d) {
       console.log(res._header);
     }
     //console.log(error);
-    res.send({ error })
+    res.send(error.response.data)
 }
 
+ 
+
+function ShortAxios(req,res,a,msgpth,d,id){
+    let raster={"":""}; 
+    raster=Object.assign({},rasterX);
+    //console.log(raster);
+    if(id!=undefined){
+        id="/"+id;
+        if(raster[msgpth].includes("/ID")){
+            raster[msgpth]=raster[msgpth].replace("/ID",id);
+        }else{
+        raster[msgpth]=raster[msgpth]+id;}
+        }else{id="";}
 
 
-function ShortAxios(req,res,a,msgpth,d){ 
-    var msgpth= msgpth;
     // raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/register":"/api/register"} // Masterserver
-    raster={"/asset":"/api/asset","/db":"/api/suggestion","/like":"/api/vote","/comment":"/api/comment","/login":"/api/login","/marker":"/api/marker","template":"api/asset/template"} //Testserver
-  
+
         switch (a) {
         case "get":
+            console.log("get: http://"+dbHost+":"+port+raster[msgpth]);
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
@@ -117,9 +142,7 @@ function ShortAxios(req,res,a,msgpth,d){
             .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
         case "post":
-            //axios mit options?
             console.log("http://"+dbHost+":"+port+raster[msgpth]+","+JSON.stringify({...d}));
-            console.log(raster[msgpth]);
             axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
@@ -129,18 +152,20 @@ function ShortAxios(req,res,a,msgpth,d){
             .catch((error)=>{/*console.log(error);*/err(error,req,res,a,msgpth,d)});
             break;
         case "put":
+            console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id,d);
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{res.send(error.response.data)/*err(error,req,res,a,msgpth,d)*/});
             break;
         case "delete":
-            axios.delete("http://"+dbHost+":"+port+raster[msgpth],{...d})
+            console.log("delete: http://"+dbHost+":"+port+raster[msgpth])
+            axios.delete("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(msgpth+" "+a+" successful");
-
+                res.send(response.data);
             })
             .catch((error)=>{err(error,req,res,a,msgpth,d)});
             break;
@@ -184,27 +209,29 @@ eval(
 app.get("/db",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db");
     });
-app.post("/db",(req,res,next)=>{ //add new suggestion
+app.post("/db",(req,res)=>{ //add new suggestion
     ShortAxios(req,res,"post","/db",req.body);
     });
 
 app.get("/db/:id",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db/"+req.params.id);
+    ShortAxios(req,res,"get","/db","",req.params.id);
     });
-app.put("/db/:id",(req,res,next)=>{  //change suggestion by ID 
-    ShortAxios(req,res,next,"put","/db/"+req.params.id,req.body.data);
+
+app.put("/db/:id",(req,res)=>{  //change suggestion by ID ShortAxios(req,res,a,msgpth,d,id){
+    ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
-app.delete("/db/:id",(req,res,next)=>{ //delete a suggestion
-    ShortAxios(req,res,next,"delete","/db/"+req.params.id,req.body.data);
+app.delete("/db/:id",(req,res)=>{ //delete a suggestion
+    ShortAxios(req,res,"delete","/db","",req.params.id);
 });
-app.get("/db/:id/vote",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db/"+req.params.id+"/vote");
+
+app.get("/db/:id/like",(req,res)=>{  //get all votes of an suggestion
+    ShortAxios(req,res,"get","/db/like","",req.params.id);
     });
 app.get("/db/:id/comment",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db/"+req.params.id+"/comment");
+    ShortAxios(req,res,"get","/db/comment","",req.params.id);
     });
-app.get("/db/:id/report",(req,res)=>{  //get all suggestions
-    ShortAxios(req,res,"get","/db/"+req.params.id+"/report");
+app.post("/db/:id/report",(req,res)=>{  //report a suggestion, user_id und description 
+    ShortAxios(req,res,"post","/db/report",req.body,req.params.id);
     });
 
     //1.2)
@@ -215,40 +242,42 @@ app.get("/like",(req,res)=>{ //get all votes
 app.post("/like",(req,res)=>{ //add new vote
     ShortAxios(req,res,"post","/like",req.body);
 })
+
 //////////
-app.get("/like/:id",(req,res)=>{ //??Testen //get all vote by ID
-    ShortAxios(req,res,"get","/like/"+req.params.id);
+app.get("/like:id",(req,res)=>{ //??Testen //get all vote by ID
+    ShortAxios(req,res,"get","/like","",req.params.id);
 })
-app.put("/like/:id", (req,res)=>{ //??Testen //change vote by ID 
-    ShortAxios(req,res,"put","/like"+req.params.id,req.body);
+app.put("/like:id", (req,res)=>{ //??Testen //change vote by ID 
+    ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
-app.delete("/like/:id", (req,res)=>{ //??Testen //delete vote by ID 
-    ShortAxios(req,res,"delete","/like"+req.params.id,req.body);
+app.delete("/like:id", (req,res)=>{ //??Testen //delete vote by ID 
+    ShortAxios(req,res,"delete","/like","",req.params.id);
 })
 
 // 1.3)
 //Kommentar, Meldung
-app.get("/comment",(req,res,next)=>{ //get all comments
+app.get("/comment",(req,res)=>{ //get all comments
     ShortAxios(req,res,"get","/comment");
 })
-app.post("/comment",(req,res,next)=>{ //create new comment
-    ShortAxios(req,res,next,"post","/comment",req.body);
+app.post("/comment",(req,res)=>{ //create new comment
+    ShortAxios(req,res,"post","/comment",req.body);
 })
 ////////
-app.get("/comment/:id",(req,res,next)=>{ //??Testen //get comment by ID
-    ShortAxios(req,res,"get","/comment/"+req.params.id);
+app.get("/comment/:id",(req,res)=>{ //??Testen //get comment by ID
+    ShortAxios(req,res,"get","/comment","",req.params.id);
 })
-app.put("/comment/:id", (req,res,next)=>{ //??Testen //change comment by ID
-    ShortAxios(req,res,next,"put","/comment/"+req.params.id,req.body);
+app.put("/comment/:id", (req,res)=>{ //??Testen //change comment by ID
+    ShortAxios(req,res,"put","/comment",req.body,req.params.id);
 })
 app.delete("/comment/:id", (req,res,next)=>{ //??Testen //delete comment by ID
-    ShortAxios(req,res,next,"delete","/comment/"+req.params.id,req.body);
+    ShortAxios(req,res,"delete","/comment",req.body,req.params.id);
 })
+////////
 app.get("/comment/:id/vote",(req,res)=>{  //get all votes by ID
-    ShortAxios(req,res,"get","/comment/"+req.params.id+"/vote");
+    ShortAxios(req,res,"get","/comment/like","",req.params.id);
     });
-app.get("/comment/:id/report",(req,res)=>{  //get all reports by ID
-    ShortAxios(req,res,"get","/comment/"+req.params.id+"/report");
+app.post("/comment/:id/report",(req,res)=>{  //get all reports by ID
+    ShortAxios(req,res,"post","/comment/report",req.body,req.params.id);
     });
 
 
@@ -261,21 +290,23 @@ app.get("/asset",(req,res)=>{
 app.post("/asset",(req,res)=>{
     ShortAxios(req,res,"post","/asset",req.body);
 })
-//Get asset by ID
-app.get("/asset/:id",(req,res)=>{ //??Testen
-    ShortAxios(req,res,"get","/asset/"+req.params.id);
+//Get asset by ID 
+app.get("/asset/:id",(req,res)=>{
+    console.log("get /asset/:id=" + req.params.id);
+    ShortAxios(req,res,"get","/asset","",req.params.id);
 })
-//Update Asset
-app.put("/asset/:id", (req,res)=>{ //??Testen
-    ShortAxios(req,res,"delete","/asset/"+req.params.id,req.data); 
+//Update Asset by ID
+app.put("/asset/:id", (req,res)=>{ //existiert nicht?
+    ShortAxios(req,res,"put","/asset",req.data,req.params.id); 
 })
-//Delete Asset
-app.delete("/asset/:id",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"delete","/asset",req.data);
+//Delete Asset by ID
+app.delete("/asset/:id",(req,res)=>{ 
+    console.log("delete in id:"+req.params.id)
+    ShortAxios(req,res,"delete","/asset","",req.params.id);
 });
 //Report Asset
-app.post("/asset/report", (req, res)=>{
-    ShortAxios(req,res,"post","/asset",req.body);
+app.post("/asset/:id/report", (req, res)=>{
+    ShortAxios(req,res,"post","/asset/report",req.body,req.params.id);
 })
 
 //1.5) Login & Register
@@ -284,11 +315,14 @@ app.post("/asset/report", (req, res)=>{
 app.post("/login",(req,res)=>{
     //axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
     d=req.body;
-    console.log("http://"+dbHost+":"+port+"/login");
-    axios.post("http://"+dbHost+":"+port+"/login/",{...d}) //name:MaxMustermann, passwort:Passwort123 HASHED!
+    console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
+    axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
             .then((response)=>{
+                console.log("response got")
+                console.log("login response data:"+ response.data);
                 data=response.data.data;
                 keys=Object.keys(data);
+                sessionStorage.setItem("keys",keys);
                 for(a of keys){
                     sessionStorage.setItem(a,data[a])
                 }
@@ -297,22 +331,37 @@ app.post("/login",(req,res)=>{
             })
             .catch((error) => { 
                 console.log("Error loading cookies"); 
-                err(error,req,res,"/login","login fehler",d);
+                //err(error,req,res,"login","/login",d)
+                console.log(error.response.data)
+                
+                res.send(error.response.data);
             }); 
 }); 
 app.get("/ss",(req,res)=>{
-    temp= sessionStorage.getItem("first_name")
-    console.log(temp);
+    temp={};
+    try {
+    for (a of sessionStorage.getItem("keys")) {
+        curr=sessionStorage.getItem(a);
+        console.log(a,":",curr)
+        temp[a]=curr;
+    }
+    } catch(e){temp="Bitte zuerst anmelden"}
     res.send(temp);
 })
 //Logout
-app.delete("/logout",(req,res,next)=>{
+app.delete("/logout",(req,res)=>{
     //delete Session
-    req.logOut()
-    res.redirect("/login")
+    try {
+        for (a of sessionStorage.getItem("keys")) {
+            sessionStorage.removeItem(a);
+        }
+        sessionStorage.removeItem("keys");
+        } catch(e){temp="Bitte zuerst anmelden"}
+        res.send("Session deleted");
+   // res.redirect("/login")
 })
 //Register
-app.post("/register",(req,res,next)=>{
+app.post("/register",(req,res)=>{
     ShortAxios(req,res,"post","/register",req.body);
 })
 
@@ -322,7 +371,7 @@ app.post("/register",(req,res,next)=>{
 //1.6) TEMPLATE (Noch nicht in der API Dokumentation der Master vorhanden!)
 //Get all templates
 app.get("/template",(req,res)=>{
-    ShortAxios(req,res,next,"get","/template");
+    ShortAxios(req,res,"get","/template");
 })/* //TODO GetTemplateById, add template, update template & delete template könnt ihr über die Assets Routen machen und dann einfach 'is_template' auf true setzen
 //Create new template
 app.post("/template",(req,res)=>{
@@ -354,13 +403,13 @@ app.post("/marker",(req,res)=>{
 })
 //get marker by id
 app.get("/marker/:id",(req,res)=>{  //Testen
-    ShortAxios(req,res,"get","/marker/"+req.params.id);
+    ShortAxios(req,res,"get","/marker","",req.params.id);
 })
 //change marker by id
-app.put("/marker/:id", (req,res)=>{ 
-    ShortAxios(req,res,"put","/marker/"+req.params.id,req.body);
+app.put("/marker/:id",(req,res)=>{ 
+    ShortAxios(req,res,"put","/marker",req.body,req.params.id);
 })
 //delete marker by id
-app.delete("/marker",(req,res,next)=>{ 
-    ShortAxios(req,res,next,"delete","/marker",req.data);
+app.delete("/marker/:id",(req,res)=>{ 
+    ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
