@@ -45,7 +45,7 @@ const rasterX={ "/asset":"/api/asset",
                 "/db/comment":"/api/suggestion/ID/comment",
                 "/db/like":"/api/suggestion/ID/vote",
                 "/db":"/api/suggestion",
-                "/like":"/api/ID/vote",
+                "/like":"/api/vote",
                 "/login":"/api/login",
                 "/marker":"/api/marker",
                 "/template":"/api/asset/template",
@@ -273,7 +273,7 @@ app.delete("/comment/:id", (req,res,next)=>{ //??Testen //delete comment by ID
     ShortAxios(req,res,"delete","/comment",req.body,req.params.id);
 })
 ////////
-app.get("/comment/:id/vote",(req,res)=>{  //get all votes by ID
+app.get("/comment/:id/like",(req,res)=>{  //get all votes by ID
     ShortAxios(req,res,"get","/comment/like","",req.params.id);
     });
 app.post("/comment/:id/report",(req,res)=>{  //get all reports by ID
@@ -319,7 +319,7 @@ app.post("/login",(req,res)=>{
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
             .then((response)=>{
                 console.log("response got")
-                console.log("login response data:"+ response.data);
+                console.log("login response data:", response.data);
                 data=response.data.data;
                 keys=Object.keys(data);
                 sessionStorage.setItem("keys",keys);
