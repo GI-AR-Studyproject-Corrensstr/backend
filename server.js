@@ -9,6 +9,10 @@ const axios = require('axios').default;
 const app= express()
 const sessionStorage = require("node-sessionstorage");
 
+
+//session store abspeichern https://www.npmjs.com/package/session-file-store
+
+
 /*app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());/*
 
