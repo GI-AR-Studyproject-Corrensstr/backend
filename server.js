@@ -8,6 +8,8 @@ require('dotenv').config()
 const axios = require('axios').default;
 const app= express()
 const sessionStorage = require("node-sessionstorage");
+const e = require('express');
+sessionStorage.setItem("storedUser",{});
 
 
 //session store abspeichern https://www.npmjs.com/package/session-file-store
@@ -291,11 +293,30 @@ app.post("/login",(req,res)=>{
                 console.log("response got")
                 console.log("login response data:"+ response.data);
                 data=response.data.data;
+                var currentdate = new Date(); 
+                //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
+                var datetime =  currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+                data={...data,"Logintime_readable":datetime,"Logintime":currentdate.getTime()} //time
+                console.log(data);
                 keys=Object.keys(data);
+                console.log(keys);
+                storedUser=sessionStorage.getItem("storedUser");
+                console.log(data["id"]);
+                storedUser[data["id"]]=currentdate.getTime();
                 sessionStorage.setItem("keys",keys);
-                for(a of keys){
-                    sessionStorage.setItem(a,data[a])
-                }
+                sessionStorage.setItem("storedUser",storedUser);
+                //
+               // 
+               // storedUser=//{...storedUser,{"id":data["id"]}};
+                //sessionStorage.setItem("storedUser", );
+                sessionStorage.setItem(data["id"],data);
+
                 console.log("cookies from answere successfully loaded");
                 res.send(response.data);
             })
@@ -309,13 +330,24 @@ app.post("/login",(req,res)=>{
 }); 
 // SessionStorage auslesen
 app.get("/ss",(req,res)=>{
+    temp=[];
+    try {
+    //for (a of sessionStorage.getItem("keys")) {}
+    iOver=Object.keys(sessionStorage.getItem("storedUser"));
+    for (const a of iOver) {
+        curr= sessionStorage.getItem(a)
+        temp=[...temp,curr];
+        }
+    } catch(e){temp="Bitte zuerst anmelden"}
+    res.send(temp);
+})
+app.get("/ss/:id",(req,res)=>{
     temp={};
     try {
-    for (a of sessionStorage.getItem("keys")) {
-        curr=sessionStorage.getItem(a);
-        console.log(a,":",curr)
-        temp[a]=curr;
-    }
+    //for (a of sessionStorage.getItem("keys")) {}
+        temp=sessionStorage.getItem(req.params.id);
+        if (temp==undefined){throw e;}
+        console.log(temp);
     } catch(e){temp="Bitte zuerst anmelden"}
     res.send(temp);
 })
