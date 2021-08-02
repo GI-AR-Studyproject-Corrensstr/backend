@@ -10,6 +10,10 @@ const app= express()
 const sessionStorage = require("node-sessionstorage");
 const e = require('express');
 sessionStorage.setItem("storedUser",{});
+const ExpiringMap = require('expiring_map').ExpiringMap;
+var uniqid = require('uniqid');
+
+//cloned https://github.com/kodi/JS-Object-Expire
 
 
 //session store abspeichern https://www.npmjs.com/package/session-file-store
@@ -285,7 +289,6 @@ app.post("/asset/:id/report", (req, res)=>{
 //1.5) Login & Register
 //Login Post
 app.post("/login",(req,res)=>{
-    //axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
     d=req.body;
     console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
@@ -306,16 +309,23 @@ app.post("/login",(req,res)=>{
                 console.log(data);
                 keys=Object.keys(data);
                 console.log(keys);
-                storedUser=sessionStorage.getItem("storedUser");
+                storedUser=sessionStorage.getItem("storedUser"); //Abfrage von storedUser
                 console.log(data["id"]);
-                storedUser[data["id"]]=currentdate.getTime();
-                sessionStorage.setItem("keys",keys);
+                let UID=uniqid();
+               console.log("UID:",UID)
+                console.log(storedUser)
+                storedUser[data["id"]]=UID;//currentdate.getTime();
+                console.log(storedUser)
+
+
+                sessionStorage.setItem("keys",keys); //Schreiben von storedUser
                 sessionStorage.setItem("storedUser",storedUser);
                 //
                // 
                // storedUser=//{...storedUser,{"id":data["id"]}};
                 //sessionStorage.setItem("storedUser", );
-                sessionStorage.setItem(data["id"],data);
+                
+                sessionStorage.setItem(UID,data);//data["id"],data);
 
                 console.log("cookies from answere successfully loaded");
                 res.send(response.data);
@@ -323,9 +333,14 @@ app.post("/login",(req,res)=>{
             .catch((error) => { 
                 console.log("Error loading cookies"); 
                 //err(error,req,res,"login","/login",d)
+                try{
                 console.log(error.response.data)
-                
+            
                 res.send(error.response.data);
+                }catch(e){
+                    console.log(error);
+                    res.send(error);
+                }
             }); 
 }); 
 // SessionStorage auslesen
