@@ -37,7 +37,6 @@ app.use(bodyParser.json());/*
 */
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
-var global=this;
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
@@ -358,8 +357,16 @@ app.post("/login",(req,res)=>{
 // SessionStorage auslesen
 app.get("/ff",checkAuthenticated,(req,res)=>{
     //addKeyValue(key, value [, timeoutMs] [, callback])
-    console.log(cookies);
-    var deldel="profile_photo";
+
+    /*if(req.cookies){
+        console.log(PrintDate(), "No Cookies Exist");
+        res.send("No cookies Exist")
+    }else{
+        console.log(PrintDate(),req.cookies);
+        res.send("ok")
+    }*/
+    res.send("ende")
+
    /* data= {
         "id": 1,
         "first_name": "Test",
@@ -372,12 +379,23 @@ app.get("/ff",checkAuthenticated,(req,res)=>{
 
         console.log(PrintDate(),"callback activated","deleted", _data)})
     console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
-    res.send("ok")
+    
 })
 function checkAuthenticated(req,res,next){
-    SessionData=req.cookies;
-    console.log(PrintDate(), "cookie=",SessionData);
-    
+    if(Object.getPrototypeOf(req.cookies)!=null){
+        //Case cookies are Set
+        if(req.cookies["SessionData"]==undefined){
+            //andere cookies gesetzt, aber nicht unsere.
+        }else{
+            //hier kann unser Stuff beginnen, also es ist jemand authentifiziert
+            //redirekt auf userseiten
+        }
+    }else{
+        console.log("No cookies are set");
+        console.log(PrintDate(), "req.cookies[\"SessionData\"]",req.cookies["SessionData"]);
+        //no cookies are set aka no login aka guest.
+        //redirekt auf login bzw Guestseiten
+    }
     next();
 }
 function PrintDate(){
