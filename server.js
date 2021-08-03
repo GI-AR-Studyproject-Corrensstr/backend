@@ -10,8 +10,12 @@ const app= express()
 const sessionStorage = require("node-sessionstorage");
 const e = require('express');
 sessionStorage.setItem("storedUser",{});
-const ExpiringMap = require('expiring_map').ExpiringMap;
 var uniqid = require('uniqid');
+var expiry = require('expiryprops');
+expiry.defaultTimer(30000);//ms
+var colors = require('colors');
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 //cloned https://github.com/kodi/JS-Object-Expire
 
@@ -288,6 +292,9 @@ app.post("/asset/:id/report", (req, res)=>{
 
 //1.5) Login & Register
 //Login Post
+app.get("/login"),(req,res)=>{
+    res.send(login.html)
+}
 app.post("/login",(req,res)=>{
     d=req.body;
     console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
@@ -305,7 +312,8 @@ app.post("/login",(req,res)=>{
                 + currentdate.getMinutes() + ":" 
                 + currentdate.getSeconds();
 
-                data={...data,"Logintime_readable":datetime,"Logintime":currentdate.getTime()} //time
+                data={...data,"Logintime_readable":datetime
+                ,"Logintime":currentdate.getTime()} //time
                 console.log(data);
                 keys=Object.keys(data);
                 console.log(keys);
@@ -316,8 +324,6 @@ app.post("/login",(req,res)=>{
                 console.log(storedUser)
                 storedUser[data["id"]]=UID;//currentdate.getTime();
                 console.log(storedUser)
-
-
                 sessionStorage.setItem("keys",keys); //Schreiben von storedUser
                 sessionStorage.setItem("storedUser",storedUser);
                 //
@@ -325,9 +331,15 @@ app.post("/login",(req,res)=>{
                // storedUser=//{...storedUser,{"id":data["id"]}};
                 //sessionStorage.setItem("storedUser", );
                 
-                sessionStorage.setItem(UID,data);//data["id"],data);
-
+               // sessionStorage.setItem(UID,data);//data["id"],data);
+                expiry.addKeyValue(UID,data,(_data=data)=>{ //_data=Object.assign({},data)
+                    storedUser= sessionStorage.getItem("storedUser");
+                    delete storedUser[_data["id"]];
+                    console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
+                    sessionStorage.setItem("storedUser",storedUser);
+                });
                 console.log("cookies from answere successfully loaded");
+                res.cookie("SessionData",{"SessionID":UID,"first_name":data["first_name"],"last_name":data["last_name"]},{expires: new Date(Date.now()+expiry.defaultTimer())})
                 res.send(response.data);
             })
             .catch((error) => { 
@@ -344,15 +356,52 @@ app.post("/login",(req,res)=>{
             }); 
 }); 
 // SessionStorage auslesen
+app.get("/ff",checkAuthenticated,(req,res)=>{
+    //addKeyValue(key, value [, timeoutMs] [, callback])
+    console.log(cookies);
+    var deldel="profile_photo";
+   /* data= {
+        "id": 1,
+        "first_name": "Test",
+        "last_name": "User",
+        "profile_photo": "https://www.processmaker.com/wp-content/uploads/2020/10/citizen-developer-768x512.jpg"
+    }
+    expiry.addKeyValue("SessionID",data,(_data=data)=>{
+        delete data[deldel];
+        console.log("afterdel", data);
+
+        console.log(PrintDate(),"callback activated","deleted", _data)})
+    console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
+    res.send("ok")
+})
+function checkAuthenticated(req,res,next){
+    SessionData=req.cookies;
+    console.log(PrintDate(), "cookie=",SessionData);
+    
+    next();
+}
+function PrintDate(){
+    var currentdate = new Date(); 
+    //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
+    var datetime =  currentdate.getDate() + "/"
+    + (currentdate.getMonth()+1)  + "/" 
+    + currentdate.getFullYear() + " @ "  
+    + currentdate.getHours() + ":"  
+    + currentdate.getMinutes() + ":" 
+    + currentdate.getSeconds() + "."
+    + currentdate.getMilliseconds();
+    return datetime.brightBlue;
+}
 app.get("/ss",(req,res)=>{
     temp=[];
     try {
     //for (a of sessionStorage.getItem("keys")) {}
-    iOver=Object.keys(sessionStorage.getItem("storedUser"));
+    temp=sessionStorage.getItem("storedUser");
+    /*iOver=Object.keys(sessionStorage.getItem("storedUser"));
     for (const a of iOver) {
         curr= sessionStorage.getItem(a)
         temp=[...temp,curr];
-        }
+        }*/
     } catch(e){temp="Bitte zuerst anmelden"}
     res.send(temp);
 })
@@ -360,7 +409,10 @@ app.get("/ss/:id",(req,res)=>{
     temp={};
     try {
     //for (a of sessionStorage.getItem("keys")) {}
-        temp=sessionStorage.getItem(req.params.id);
+        temp=sessionStorage.getItem("storedUser");
+        temp=temp[req.params.id];
+        fullobj=expiry.obj[temp];
+        temp={"SessionID":temp,...fullobj};
         if (temp==undefined){throw e;}
         console.log(temp);
     } catch(e){temp="Bitte zuerst anmelden"}
@@ -369,12 +421,18 @@ app.get("/ss/:id",(req,res)=>{
 //Logout und delete Session
 app.delete("/logout",(req,res)=>{
     //delete Session
-    try {
+    CookieData=req.cookies;
+    console.log(CookieData,CookieData["SessionData"]["SessionID"]);
+    res.clearCookie("SessionData");
+    expiry.rmKey(key=CookieData["SessionData"]["SessionID"]);
+
+    
+    /*try {
         for (a of sessionStorage.getItem("keys")) {
             sessionStorage.removeItem(a);
         }
         sessionStorage.removeItem("keys");
-        } catch(e){temp="Bitte zuerst anmelden"}
+        } catch(e){temp="Bitte zuerst anmelden"}*/
         res.send("Session deleted");
    // res.redirect("/login")
 })
