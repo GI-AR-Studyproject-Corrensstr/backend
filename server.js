@@ -17,6 +17,7 @@ var colors = require('colors');
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+
 //cloned https://github.com/kodi/JS-Object-Expire
 
 
@@ -487,3 +488,42 @@ app.put("/marker/:id",(req,res)=>{
 app.delete("/marker/:id",(req,res)=>{ 
     ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
+
+
+
+
+/**
+ * Neue Funktion -> muss noch gestestet werden
+ */
+
+function AuthenticateFunction() {
+    return null; //Muss noch ergänzt werden.
+}
+
+//Authentifizierungsrouter und Openrouter
+var authRouter = express.Router(); 
+var openRouter = express.Router(); 
+
+authRouter.use(AuthenticateFunction); 
+
+//Get-Method Entwurfs-Auswahl 
+authRouter.get("/entwurfsAuswahl", (req, res, next) => {
+    res.sendFile("Filepath")
+});
+
+//Get-Method Entwurfs-Ansicht 
+authRouter.get("/entwurfsAuswahl", (req, res, next) => {
+    res.sendFile("Filepath")
+});
+
+//Get-Method neuer Entwurf
+authRouter.get("/entwurfsAuswahl", (req, res, next) => {
+    res.sendFile("Filepath")
+});
+
+//Get-Method AR
+authRouter.get("/entwurfsAuswahl", (req, res, next) => {
+    res.sendFile("Filepath")
+});
+
+
