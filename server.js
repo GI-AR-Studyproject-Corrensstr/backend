@@ -12,10 +12,13 @@ const e = require('express');
 sessionStorage.setItem("storedUser",{});
 var uniqid = require('uniqid');
 var expiry = require('expiryprops');
-expiry.defaultTimer(30000);//ms
+var SessionLength=30000 //ms
+expiry.defaultTimer(SessionLength);
 var colors = require('colors');
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
+
 
 
 //cloned https://github.com/kodi/JS-Object-Expire
@@ -131,6 +134,7 @@ function err(error,req,res,a,msgpth,d) {
   */
 
 function ShortAxios(req,res,a,msgpth,d,id){
+    log=false;
     log?console.log("Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (",req,res,a,msgpth,d,id,")"):true;
     let raster={"":""}; 
     raster=Object.assign({},rasterX);
@@ -292,9 +296,10 @@ app.post("/asset/:id/report", (req, res)=>{
 
 //1.5) Login & Register
 //Login Post
-app.get("/login"),(req,res)=>{
-    res.send(login.html)
-}
+app.get("/login",(req,res)=>{
+    
+    res.sendFile(__dirname+"/src/html/index.html")
+})
 app.post("/login",(req,res)=>{
     d=req.body;
     console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
@@ -340,6 +345,7 @@ app.post("/login",(req,res)=>{
                 });
                 console.log("cookies from answere successfully loaded");
                 res.cookie("SessionData",{"SessionID":UID,"first_name":data["first_name"],"last_name":data["last_name"]},{expires: new Date(Date.now()+expiry.defaultTimer())})
+                
                 res.send(response.data);
             })
             .catch((error) => { 
@@ -356,7 +362,8 @@ app.post("/login",(req,res)=>{
             }); 
 }); 
 // SessionStorage auslesen
-app.get("/ff",checkAuthenticated,(req,res)=>{
+app.get("/ff"/*,checkAuthenticated*/,(req,res)=>{
+    res.redirect("/login")
     //addKeyValue(key, value [, timeoutMs] [, callback])
 
     /*if(req.cookies){
@@ -382,23 +389,30 @@ app.get("/ff",checkAuthenticated,(req,res)=>{
     console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
     
 })
-function checkAuthenticated(req,res,next){
+function checkAuthenticated(req,res){
     if(Object.getPrototypeOf(req.cookies)!=null){
         //Case cookies are Set
         if(req.cookies["SessionData"]==undefined){
+           // res.redirect("/login")
             //andere cookies gesetzt, aber nicht unsere.
+            return false;
         }else{
+             return true;
             //hier kann unser Stuff beginnen, also es ist jemand authentifiziert
             //redirekt auf userseiten
         }
     }else{
-        console.log("No cookies are set");
-        console.log(PrintDate(), "req.cookies[\"SessionData\"]",req.cookies["SessionData"]);
+        console.log(PrintDate(),"No cookies are set");
+        //console.log(PrintDate(), "req.cookies[\"SessionData\"]",req.cookies["SessionData"]);
+        console.log(PrintDate(),"next or redirect...")
+        return false;
+        //res.redirect("/guest");
         //no cookies are set aka no login aka guest.
         //redirekt auf login bzw Guestseiten
+        
     }
-    next();
 }
+
 function PrintDate(){
     var currentdate = new Date(); 
     //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
@@ -489,41 +503,60 @@ app.delete("/marker/:id",(req,res)=>{
     ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
 
-
-
-
 /**
  * Neue Funktion -> muss noch gestestet werden
  */
-
-function AuthenticateFunction() {
-    return null; //Muss noch ergänzt werden.
-}
 
 //Authentifizierungsrouter und Openrouter
 var authRouter = express.Router(); 
 var openRouter = express.Router(); 
 
-authRouter.use(AuthenticateFunction); 
+app.use("/", authRouter)
+app.use("/", openRouter)
 
 //Get-Method Entwurfs-Auswahl 
 authRouter.get("/entwurfsAuswahl", (req, res, next) => {
-    res.sendFile("Filepath")
+    if(!checkAuthenticated(req,res)){
+        next();
+    }else{
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAuswahl.html")}
 });
 
 //Get-Method Entwurfs-Ansicht 
-authRouter.get("/entwurfsAuswahl", (req, res, next) => {
-    res.sendFile("Filepath")
+authRouter.get("/entwurfsAnsicht", (req, res, next) => {
+    if(!checkAuthenticated(req,res)){
+        next();
+    }else{
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAnsicht.html")}
 });
 
 //Get-Method neuer Entwurf
-authRouter.get("/entwurfsAuswahl", (req, res, next) => {
-    res.sendFile("Filepath")
+authRouter.get("/neuerEntwurf", (req, res, next) => {
+    if(!checkAuthenticated(req,res)){
+        res.redirect("/login");
+    }else{
+    res.sendFile(__dirname+"\\src\\html\\neuerEntwurf.html")}
 });
 
 //Get-Method AR
-authRouter.get("/entwurfsAuswahl", (req, res, next) => {
-    res.sendFile("Filepath")
+authRouter.get("/AR", (req, res, next) => {
+    if(!checkAuthenticated(req,res)){
+        res.redirect("/login");
+    }else{
+    res.sendFile(__dirname+"\\src\\html\\AR.html")}
 });
 
+//Get-Method Entwurfs-Auswahl-Gast
+openRouter.get("/entwurfsAuswahl", (req, res, next) => {
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAuswahlGast.html")
+});
 
+//Get-Method Entwurfs-Ansicht-Gast
+openRouter.get("/entwurfsAnsicht", (req, res, next) => {
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAnsichtGast.html")
+});
+
+//Get-Method Login
+openRouter.get("/", (req, res, next) => {
+    res.sendFile(__dirname+"\\src\\html\\index.html")
+});
