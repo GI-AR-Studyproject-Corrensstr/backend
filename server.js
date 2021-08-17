@@ -361,8 +361,28 @@ app.post("/login",(req,res)=>{
                 }
             }); 
 }); 
+function printer(str,req,res,next){
+    console.log(PrintDate(),str);
+    next();
+}
+function RetSth(req,res,next){
+    res.send("Ok!")
+}
+var dodge=true;
 // SessionStorage auslesen
-app.get("/ff"/*,checkAuthenticated*/,(req,res)=>{
+var test1 = express.Router();
+var test2 = express.Router();
+test1.all('*',
+(req,res,next)=>{
+        console.log(PrintDate(),)
+        if(dodge)
+        next('route');
+        else next();
+},(req,res,next)=>printer("HalloWelt",req,res,next));
+test2.use((req,res,next)=>printer("ZweiZweiZwei",req,res,next));
+
+app.get("/ff",test1,test2,RetSth);
+/*(req,res)=>{
     res.redirect("/login")
     //addKeyValue(key, value [, timeoutMs] [, callback])
 
@@ -373,7 +393,7 @@ app.get("/ff"/*,checkAuthenticated*/,(req,res)=>{
         console.log(PrintDate(),req.cookies);
         res.send("ok")
     }*/
-    res.send("ende")
+    //res.send("ende")
 
    /* data= {
         "id": 1,
@@ -388,7 +408,7 @@ app.get("/ff"/*,checkAuthenticated*/,(req,res)=>{
         console.log(PrintDate(),"callback activated","deleted", _data)})
     console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
     
-})
+//}
 function checkAuthenticated(req,res){
     if(Object.getPrototypeOf(req.cookies)!=null){
         //Case cookies are Set
@@ -480,6 +500,10 @@ app.post("/register",(req,res)=>{
 app.get("/template",(req,res)=>{
     ShortAxios(req,res,"get","/template");
 })
+app.use(function(err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+  });
 
 //1.7) Marker
 //get all markers
@@ -510,40 +534,52 @@ app.delete("/marker/:id",(req,res)=>{
 //Authentifizierungsrouter und Openrouter
 var authRouter = express.Router(); 
 var openRouter = express.Router(); 
-
-app.use("/", authRouter)
-app.use("/", openRouter)
-
+function Admin(req,res,next){
+    if(!checkAuthenticated(req,res)){
+        next("route");
+    }else{
+        console.log("rolle",expiry.obj[req.cookies["SessionData"].SessionID].role,"=admin?");
+        if(expiry.obj[req.cookies["SessionData"].SessionID].role=="admin"){
+            next();
+        }else{
+            next("route");
+        }
+        
+    }
+}
+function Autorized(req,res,next){
+    if(!checkAuthenticated(req,res)){
+        next("route");
+    }else{
+        next();
+    }
+}
+app.all("*",Autorized,authRouter);
+app.all("*",openRouter);
+/*authRouter.all("*",(req,res,next)=>{
+    console.log(PrintDate(),"authRouter.all")
+    console.log(PrintDate(),"!checkAuthenticated", !checkAuthenticated(req,res) );
+    if(!checkAuthenticated(req,res)) {console.log(PrintDate(),"all:next(route)");next('route');}
+    else next();
+})*/
 //Get-Method Entwurfs-Auswahl 
 authRouter.get("/entwurfsAuswahl", (req, res, next) => {
-    if(!checkAuthenticated(req,res)){
-        next();
-    }else{
-    res.sendFile(__dirname+"\\src\\html\\entwurfsAuswahl.html")}
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAuswahl.html")
 });
 
 //Get-Method Entwurfs-Ansicht 
 authRouter.get("/entwurfsAnsicht", (req, res, next) => {
-    if(!checkAuthenticated(req,res)){
-        next();
-    }else{
-    res.sendFile(__dirname+"\\src\\html\\entwurfsAnsicht.html")}
+    res.sendFile(__dirname+"\\src\\html\\entwurfsAnsicht.html")
 });
 
 //Get-Method neuer Entwurf
 authRouter.get("/neuerEntwurf", (req, res, next) => {
-    if(!checkAuthenticated(req,res)){
-        res.redirect("/login");
-    }else{
-    res.sendFile(__dirname+"\\src\\html\\neuerEntwurf.html")}
+    res.sendFile(__dirname+"\\src\\html\\neuerEntwurf.html")
 });
 
 //Get-Method AR
 authRouter.get("/AR", (req, res, next) => {
-    if(!checkAuthenticated(req,res)){
-        res.redirect("/login");
-    }else{
-    res.sendFile(__dirname+"\\src\\html\\AR.html")}
+    res.sendFile(__dirname+"\\src\\html\\AR.html")
 });
 
 //Get-Method Entwurfs-Auswahl-Gast
@@ -556,7 +592,14 @@ openRouter.get("/entwurfsAnsicht", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\entwurfsAnsichtGast.html")
 });
 
+
 //Get-Method Login
 openRouter.get("/", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\index.html")
 });
+openRouter.all("*",Autorized, (req,res,next)=>{
+    res.redirect("/entwurfsAuswahl");
+})
+openRouter.all("*", (req,res,next)=>{
+    res.redirect("/");
+})
