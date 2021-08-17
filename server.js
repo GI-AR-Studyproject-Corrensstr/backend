@@ -18,43 +18,26 @@ var colors = require('colors');
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-
-
-
-//cloned https://github.com/kodi/JS-Object-Expire
-
-
 //session store abspeichern https://www.npmjs.com/package/session-file-store
-
-
-/*app.use(bodyParser.urlencoded({extended:false}));
-app.use(bodyParser.json());/*
-
-//var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
-
 //https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
 
-/**const ssloptions = {
-    key: fs.readFileSync('./SSL/key.pem'),
-    cert: fs.readFileSync('./SSL/cert.pem')
-  };
-*/
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
-http.createServer(app).listen(3000,() => console.log("listening on port "+ 3000+ " for HTTP! :)"));
-https.createServer(ssloptions, app).listen(3001,() => console.log("listening on port "+ 3001+ " for HTTPS! :)"));
+http.createServer(app).listen(3000,() => console.log(PrintDate(),"listening on port "+ 3000+ " for HTTP! :)"));
+https.createServer(ssloptions, app).listen(3001,() => console.log(PrintDate(),"listening on port "+ 3001+ " for HTTPS! :)"));
 
 if (process.env.DB_HOST) {
     dbHost = process.env.DB_HOST;
   } else {
     dbHost = 'localhost';
   }
-  process.env.logs?true:logs=process.env.logs;
+  process.env.logs=!undefined?logs=process.env.logs:true;
+  clog("talkative logs activated")
 
-console.log("dbHost="+dbHost)
+clog("dbHost="+dbHost)
 const rasterX={ "/asset":"/api/asset",
                 "/asset/report":"/api/asset/ID/report",
                 "/comment":"/api/comment",
@@ -69,6 +52,7 @@ const rasterX={ "/asset":"/api/asset",
                 "/marker":"/api/marker",
                 "/template":"/api/asset/template",
                 "/register":"/api/register"}
+                clog(rasterX);
 
 // Bereitgestellte Bibliotheken
 app.use('/bootstrap', express.static(__dirname+'/node_modules/bootstrap/dist'));
@@ -78,7 +62,6 @@ app.use('/jquery', express.static(__dirname+"/node_modules/jquery/dist/"));
   axios.defaults.headers.common = {
     "Content-Type": "application/json"
   }
-
 
 //https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
 app.use(express.urlencoded({ extended: true}));
@@ -105,7 +88,7 @@ app.get("/" ,(req,res,next)=>{
  * @param {*} error 
  */
 function err(error,req,res,a,msgpth,d) {
-    console.log(msgpth+" "+a+" error"); 
+    console.log(PrintDate(), msgpth,a,"error"); 
     if (error.response) {
       // Request made and server responded
       console.log(error.response.data);
@@ -119,7 +102,6 @@ function err(error,req,res,a,msgpth,d) {
       console.log('Error', error.message);
       console.log(res._header);
     }
-    //console.log(error);
     res.send(error.response.data)
 }
 
@@ -135,7 +117,7 @@ function err(error,req,res,a,msgpth,d) {
 
 function ShortAxios(req,res,a,msgpth,d,id){
     log=false;
-    log?console.log("Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (",req,res,a,msgpth,d,id,")"):true;
+    clog("Eingang Shortaxios(req,res,a,msgpth,d,id) mit req,res",",a:",a,",msgpth:",msgpth,",d:",d,",id:",id,")");
     let raster={"":""}; 
     raster=Object.assign({},rasterX);
     if(id!=undefined){
@@ -145,44 +127,43 @@ function ShortAxios(req,res,a,msgpth,d,id){
         }else{
         raster[msgpth]=raster[msgpth]+id;}
         }else{id="";}
-    log?console.log("raster ",raster):true;
         switch (a) {
         case "get":
-            console.log("get: http://"+dbHost+":"+port+raster[msgpth]);
+            console.log(PrintDate(),"get: http://"+dbHost+":"+port+raster[msgpth]);
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
-                console.log(msgpth+" "+a+" successful");
+                console.log(PrintDate(),msgpth,a,"successful");
                 res.send(response.data);
             })
-            .catch((error)=>{log?console.log("Erroraufruf"):true; err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
         case "post":
-            console.log("http://"+dbHost+":"+port+raster[msgpth]+","+JSON.stringify({...d}));
+            console.log(PrintDate(),"http://",dbHost,":",port,raster[msgpth]+",",d);
             axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
-                console.log(msgpth+" "+a+" successful");
-                console.log(response.data);
+                console.log(PrintDate(),msgpth,a,"successful");
+                clog("response.data:",response.data);
                 res.send(response.data);
                 })
-            .catch((error)=>{log?console.log("Erroraufruf"):true;err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf");err(error,req,res,a,msgpth,d)});
             break;
         case "put":
             console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id,d);
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
-                console.log(msgpth+" "+a+" successful");
+                console.log(PrintDate(),msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{log?console.log("Erroraufruf"):true; err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
         case "delete":
             console.log("delete: http://"+dbHost+":"+port+raster[msgpth])
             axios.delete("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
-                console.log(msgpth+" "+a+" successful");
+                console.log(PrintDate(),msgpth+" "+a+" successful");
                 res.send(response.data);
             })
-            .catch((error)=>{log?console.log("Erroraufruf"):true; err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
         default:
             break;
@@ -190,6 +171,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
 }
 
 //1.1) 
+app.all("*",(req,res,next)=>{clog("Eingang von",req.protocol, req.method,req.path); next();})
 app.get("/db",(req,res)=>{  //get all suggestions
     ShortAxios(req,res,"get","/db");
     });
@@ -302,11 +284,11 @@ app.get("/login",(req,res)=>{
 })
 app.post("/login",(req,res)=>{
     d=req.body;
-    console.log("http://"+dbHost+":"+port+rasterX["/login"],d);
+    clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
             .then((response)=>{
-                console.log("response got")
-                console.log("login response data:"+ response.data);
+                clog("Got response")
+                clog("login response data:"+ response.data);
                 data=response.data.data;
                 var currentdate = new Date(); 
                 //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
@@ -319,37 +301,29 @@ app.post("/login",(req,res)=>{
 
                 data={...data,"Logintime_readable":datetime
                 ,"Logintime":currentdate.getTime()} //time
-                console.log(data);
                 keys=Object.keys(data);
-                console.log(keys);
+                clog("keys",keys);
                 storedUser=sessionStorage.getItem("storedUser"); //Abfrage von storedUser
                 console.log(data["id"]);
                 let UID=uniqid();
-               console.log("UID:",UID)
-                console.log(storedUser)
+                clog("UID:",UID)
                 storedUser[data["id"]]=UID;//currentdate.getTime();
-                console.log(storedUser)
+                clog("storedUser",storedUser)
                 sessionStorage.setItem("keys",keys); //Schreiben von storedUser
                 sessionStorage.setItem("storedUser",storedUser);
-                //
-               // 
-               // storedUser=//{...storedUser,{"id":data["id"]}};
-                //sessionStorage.setItem("storedUser", );
-                
-               // sessionStorage.setItem(UID,data);//data["id"],data);
                 expiry.addKeyValue(UID,data,(_data=data)=>{ //_data=Object.assign({},data)
                     storedUser= sessionStorage.getItem("storedUser");
                     delete storedUser[_data["id"]];
                     console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
                     sessionStorage.setItem("storedUser",storedUser);
                 });
-                console.log("cookies from answere successfully loaded");
+                clog("cookies from answere successfully loaded");
                 res.cookie("SessionData",{"SessionID":UID,"first_name":data["first_name"],"last_name":data["last_name"]},{expires: new Date(Date.now()+expiry.defaultTimer())})
                 
                 res.send(response.data);
             })
             .catch((error) => { 
-                console.log("Error loading cookies"); 
+                clog("Error loading cookies"); 
                 //err(error,req,res,"login","/login",d)
                 try{
                 console.log(error.response.data)
@@ -361,27 +335,15 @@ app.post("/login",(req,res)=>{
                 }
             }); 
 }); 
-function printer(str,req,res,next){
-    console.log(PrintDate(),str);
-    next();
-}
-function RetSth(req,res,next){
-    res.send("Ok!")
-}
-var dodge=true;
 // SessionStorage auslesen
-var test1 = express.Router();
-var test2 = express.Router();
-test1.all('*',
-(req,res,next)=>{
-        console.log(PrintDate(),)
-        if(dodge)
-        next('route');
-        else next();
-},(req,res,next)=>printer("HalloWelt",req,res,next));
-test2.use((req,res,next)=>printer("ZweiZweiZwei",req,res,next));
 
-app.get("/ff",test1,test2,RetSth);
+app.get("/ff",(req,res,next)=>{
+    "Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (,req,res",a,msgpth,d,id,")"
+    console.log("in ff")
+    log=true;
+    clog("tolles Log oder?");
+    res.send("ok");
+});
 /*(req,res)=>{
     res.redirect("/login")
     //addKeyValue(key, value [, timeoutMs] [, callback])
@@ -410,27 +372,31 @@ app.get("/ff",test1,test2,RetSth);
     
 //}
 function checkAuthenticated(req,res){
+    clog("Entry checkAuthenticated");
     if(Object.getPrototypeOf(req.cookies)!=null){
         //Case cookies are Set
         if(req.cookies["SessionData"]==undefined){
            // res.redirect("/login")
             //andere cookies gesetzt, aber nicht unsere.
+            clog("other cookies are set ...redirect...")
             return false;
         }else{
+            clog("checkAuthenticated=true");
              return true;
-            //hier kann unser Stuff beginnen, also es ist jemand authentifiziert
-            //redirekt auf userseiten
+            // kein redirect
         }
     }else{
-        console.log(PrintDate(),"No cookies are set");
-        //console.log(PrintDate(), "req.cookies[\"SessionData\"]",req.cookies["SessionData"]);
-        console.log(PrintDate(),"next or redirect...")
+        clog("no cookies are set ...redirect...");
         return false;
-        //res.redirect("/guest");
         //no cookies are set aka no login aka guest.
-        //redirekt auf login bzw Guestseiten
+
         
     }
+}
+
+//Utility
+function clog(...args){
+    if(logs) console.log(PrintDate(),...args);
 }
 
 function PrintDate(){
@@ -478,16 +444,8 @@ app.delete("/logout",(req,res)=>{
     console.log(CookieData,CookieData["SessionData"]["SessionID"]);
     res.clearCookie("SessionData");
     expiry.rmKey(key=CookieData["SessionData"]["SessionID"]);
-
-    
-    /*try {
-        for (a of sessionStorage.getItem("keys")) {
-            sessionStorage.removeItem(a);
-        }
-        sessionStorage.removeItem("keys");
-        } catch(e){temp="Bitte zuerst anmelden"}*/
         res.send("Session deleted");
-   // res.redirect("/login")
+    res.redirect("/login");
 })
 //Register
 app.post("/register",(req,res)=>{
@@ -500,10 +458,6 @@ app.post("/register",(req,res)=>{
 app.get("/template",(req,res)=>{
     ShortAxios(req,res,"get","/template");
 })
-app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-  });
 
 //1.7) Marker
 //get all markers
@@ -527,30 +481,34 @@ app.delete("/marker/:id",(req,res)=>{
     ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
 
-/**
- * Neue Funktion -> muss noch gestestet werden
- */
 
 //Authentifizierungsrouter und Openrouter
 var authRouter = express.Router(); 
 var openRouter = express.Router(); 
 function Admin(req,res,next){
+    clog("Entry isAdmin?")
     if(!checkAuthenticated(req,res)){
+        clog("-->No")
         next("route");
     }else{
-        console.log("rolle",expiry.obj[req.cookies["SessionData"].SessionID].role,"=admin?");
+        clog("rolle",expiry.obj[req.cookies["SessionData"].SessionID].role,"=admin?");
         if(expiry.obj[req.cookies["SessionData"].SessionID].role=="admin"){
+            clog("-->Yes")
             next();
         }else{
+            clog("-->No")
             next("route");
         }
         
     }
 }
 function Autorized(req,res,next){
+    clog("Entry IsAuthorized?")
     if(!checkAuthenticated(req,res)){
+        clog("-->No")
         next("route");
     }else{
+        clog("-->Yes")
         next();
     }
 }
