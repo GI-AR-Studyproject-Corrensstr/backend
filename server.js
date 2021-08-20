@@ -16,6 +16,8 @@ var SessionLength=30000 //ms
 expiry.defaultTimer(SessionLength);
 var colors = require('colors');
 var cookieParser = require('cookie-parser');
+const updateDotenv = require('update-dotenv');
+const { env } = require('process');
 app.use(cookieParser());
 
 //session store abspeichern https://www.npmjs.com/package/session-file-store
@@ -23,6 +25,8 @@ app.use(cookieParser());
 
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
+
+load();
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
@@ -304,7 +308,7 @@ app.post("/login",(req,res)=>{
                 keys=Object.keys(data);
                 clog("keys",keys);
                 storedUser=sessionStorage.getItem("storedUser"); //Abfrage von storedUser
-                console.log(data["id"]);
+                //console.log(data["id"]);
                 let UID=uniqid();
                 clog("UID:",UID)
                 storedUser[data["id"]]=UID;//currentdate.getTime();
@@ -316,10 +320,11 @@ app.post("/login",(req,res)=>{
                     delete storedUser[_data["id"]];
                     console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
                     sessionStorage.setItem("storedUser",storedUser);
+                    save();
                 });
                 clog("cookies from answere successfully loaded");
                 res.cookie("SessionData",{"SessionID":UID,"first_name":data["first_name"],"last_name":data["last_name"]},{expires: new Date(Date.now()+expiry.defaultTimer())})
-                
+                save();
                 res.send(response.data);
             })
             .catch((error) => { 
@@ -336,12 +341,83 @@ app.post("/login",(req,res)=>{
             }); 
 }); 
 // SessionStorage auslesen
+function save(){
+    storedUserStr= JSON.stringify(sessionStorage.getItem("storedUser"));
+    expiryStr=JSON.stringify(expiry);
+updateDotenv({
+    storedUser: storedUserStr,
+    expiry: expiryStr
+  }).then(() => updateDotenv({Last_Backup: PrintDate(true)}))
+}
+function load(){
+    try{
+    if(env.process.storedUser!=undefined && env.process.expiry != undefined){
+        
+        TEMPexpiry= JSON.parse(env.process.expiry).obj;
+        sessionStorage.setItem("storedUser",TEMPstoredUser);
+
+        for (a in TEMPexpiry) {
+            if(TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime()){
+                newTime= TEMPexpiry[a].Logintime+expiry.defaultTimer()-new Date().getTime();
+                expiry.addKeyValue(a,TEMPexpiry[a],newTime,(_data=TEMPexpiry[a])=>{
+                    storedUser= sessionStorage.getItem("storedUser");
+                    delete storedUser[_data["id"]];
+                    console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
+                    sessionStorage.setItem("storedUser",storedUser);
+                });
+            }else{
+                delete TEMPstoredUser[TEMPexpiry[a]["id"]];
+            }
+                
+            }
+        TEMPstoredUser= JSON.parse(env.process.storedUser);
+        updateDotenv({
+            storedUser: undefined,
+            expiry: undefined,
+            Last_Backup: undefined
+          }).then(() => console.log(PrintDate(), "Backup restored successfully"))
+        }else{
+            console.log(PrintDate(), "No backup restored");
+        }}catch(e){
+            console.log(PrintDate(), "No backup restored");
+        }
+}
+
+
 
 app.get("/ff",(req,res,next)=>{
-    "Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (,req,res",a,msgpth,d,id,")"
+
+    "Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (,req,res,a,msgpth,d,id,)"
     console.log("in ff")
-    log=true;
-    clog("tolles Log oder?");
+    GetUser(id=123);
+    //log=true;
+    //clog("tolles Log oder?");
+    
+    //console.log("expiry",expiry);
+    /*Jname="cq3o5ikkshbhrdz";
+    Jdata={"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735};
+
+    expiry.addKeyValue(Jname,Jdata,(_data=data)=>{ //_data=Object.assign({},data)
+        storedUser= sessionStorage.getItem("storedUser");
+        delete storedUser[_data["id"]];
+        console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
+        sessionStorage.setItem("storedUser",storedUser);
+    });
+
+    var currentdate = new Date(); 
+    currentdate.getTime();
+
+    console.log("JSONToString",JSON.stringify(expiry));
+    console.log("after JSON parse",JSON.parse(JSON.stringify(expiry)))
+    console.log("after JSON parse",JSON.parse(JSON.stringify(expiry)).obj)
+    expData=JSON.parse(JSON.stringify(expiry)).obj
+    for (a in expData) {
+        console.log(expData[a])
+        console.log(expData[a].Logintime)
+    }*/
+    
+    //expiry={"obj":{"cq3o5ikkshbhrdz":{"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735}}}
+    //console.log("expiry",expiry);
     res.send("ok");
 });
 /*(req,res)=>{
@@ -395,11 +471,40 @@ function checkAuthenticated(req,res){
 }
 
 //Utility
+function GetUserByName(name)
+{
+        storedUser= sessionStorage.getItem("storedUser");
+        uid=storedUser[name];
+        data=expiry.obj[uid];
+        return {uid,...data};       
+}
+function GetUserByUID(uid){
+    data=expiry.obj[uid];
+    return {uid,...data}
+}
+function GetUserById(ID){ //dumm aber vielleicht mal benötigt , ungetestet
+    for(a in expiry.obj){
+        if(expiry.obj[a].id==ID) return {a,...expiry.obj[a]}
+    }
+}
+
+function GetUserByValue(VAL){ //ungetestet
+//Jdata={"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735};
+ret={};    
+for(a in expiry.obj){
+        for(b in expiry.obj[a])
+        if(expiry.obj[a].b==VAL){
+            ret[a]=expiry.obj[a];
+        }
+    }
+    return ret;
+}
+
 function clog(...args){
     if(logs) console.log(PrintDate(),...args);
 }
 
-function PrintDate(){
+function PrintDate(bw){
     var currentdate = new Date(); 
     //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
     var datetime =  currentdate.getDate() + "/"
@@ -409,7 +514,8 @@ function PrintDate(){
     + currentdate.getMinutes() + ":" 
     + currentdate.getSeconds() + "."
     + currentdate.getMilliseconds();
-    return datetime.brightBlue;
+    if(bw==undefined) return datetime.brightBlue;
+    else return datetime;
 }
 app.get("/ss",(req,res)=>{
     temp=[];
@@ -445,6 +551,7 @@ app.delete("/logout",(req,res)=>{
     res.clearCookie("SessionData");
     expiry.rmKey(key=CookieData["SessionData"]["SessionID"]);
         res.send("Session deleted");
+    save();
     res.redirect("/login");
 })
 //Register
