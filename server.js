@@ -176,107 +176,107 @@ function ShortAxios(req,res,a,msgpth,d,id){
 
 //1.1) 
 app.all("*",(req,res,next)=>{clog("Eingang von",req.protocol, req.method,req.path); next();})
-app.get("/db",(req,res)=>{  //get all suggestions
+app.get("/db",(req,res)=>{  //get all suggestions, no restriction
     ShortAxios(req,res,"get","/db");
     });
 
-app.post("/db",(req,res)=>{ //add new suggestion
+app.post("/db",(req,res)=>{ //add new suggestion, Authorized
     ShortAxios(req,res,"post","/db",req.body);
     });
 
-app.get("/db/:id",(req,res)=>{  //get one suggestion
+app.get("/db/:id",(req,res)=>{  //get one suggestion, no restriction
     ShortAxios(req,res,"get","/db","",req.params.id);
     });
 
-app.put("/db/:id",(req,res)=>{  //change one suggestion
+app.put("/db/:id",(req,res)=>{  //change one suggestion, User, wenn du owner bist?
     ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
-app.delete("/db/:id",(req,res)=>{ //delete one suggestion
+app.delete("/db/:id",(req,res)=>{ //delete one suggestion, Admin
     ShortAxios(req,res,"delete","/db","",req.params.id);
 });
 
-app.get("/db/:id/like",(req,res)=>{  //get all likes of one suggestion
+app.get("/db/:id/like",(req,res)=>{  //get all likes of one suggestion, no restriction
     ShortAxios(req,res,"get","/db/like","",req.params.id);
     });
-app.get("/db/:id/comment",(req,res)=>{  //get all comments of one suggestion
+app.get("/db/:id/comment",(req,res)=>{  //get all comments of one suggestion, no restriction
     ShortAxios(req,res,"get","/db/comment","",req.params.id);
     });
-app.post("/db/:id/report",(req,res)=>{  //report one suggestion, user_id und description 
+app.post("/db/:id/report",(req,res)=>{  //report one suggestion, user_id und description , Authorized
     ShortAxios(req,res,"post","/db/report",req.body,req.params.id);
     });
 
     //1.2)
 //Like-Dislike Funktion: get; post: dbabfrage mit parametern; update parameter; 
-app.get("/like",(req,res)=>{ //get all likes
+app.get("/like",(req,res)=>{ //get all likes, no restriction
     ShortAxios(req,res,"get","/like");
 })
-app.post("/like",(req,res)=>{ //add new like
+app.post("/like",(req,res)=>{ //add new like, Authorized
     ShortAxios(req,res,"post","/like",req.body);
 })
 
 //////////
-app.get("/like:id",(req,res)=>{ //get one like
+app.get("/like:id",(req,res)=>{ //get one like, Authorized
     ShortAxios(req,res,"get","/like","",req.params.id);
 })
-app.put("/like:id", (req,res)=>{ //change one like
+app.put("/like:id", (req,res)=>{ //change one like, Authorized
     ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
-app.delete("/like:id", (req,res)=>{ //delete one like
+app.delete("/like:id", (req,res)=>{ //delete one like, Authorized wenn eigener.
     ShortAxios(req,res,"delete","/like","",req.params.id);
 })
 
 // 1.3)
 //Kommentar, Meldung
-app.get("/comment",(req,res)=>{ //get all comments
+app.get("/comment",(req,res)=>{ //get all comments, no restriction
     ShortAxios(req,res,"get","/comment");
 })
-app.post("/comment",(req,res)=>{ //create new comment
+app.post("/comment",(req,res)=>{ //create new comment, Authorized
     ShortAxios(req,res,"post","/comment",req.body);
 })
 ////////
-app.get("/comment/:id",(req,res)=>{ //get one comment by ID
+app.get("/comment/:id",(req,res)=>{ //get one comment by ID, Authorized
     ShortAxios(req,res,"get","/comment","",req.params.id);
 })
-app.put("/comment/:id", (req,res)=>{ //change one comment by ID
+app.put("/comment/:id", (req,res)=>{ //change one comment by ID, Authorized, wenn eigener
     ShortAxios(req,res,"put","/comment",req.body,req.params.id);
 })
-app.delete("/comment/:id", (req,res,next)=>{ //delete one comment by ID
+app.delete("/comment/:id", (req,res,next)=>{ //delete one comment by ID, Admin
     ShortAxios(req,res,"delete","/comment",req.body,req.params.id);
 })
 ////////
-app.get("/comment/:id/vote",(req,res)=>{  //get all likes of one comment
+app.get("/comment/:id/vote",(req,res)=>{  //get all likes of one comment, Authorized 
     ShortAxios(req,res,"get","/comment/like","",req.params.id);
     });
-app.post("/comment/:id/report",(req,res)=>{  //get all reports of one comment
+app.post("/comment/:id/report",(req,res)=>{  //get all reports of one comment, no restriction
     ShortAxios(req,res,"post","/comment/report",req.body,req.params.id);
     });
 
 
 // 1.4) ASSET
 //Get all assets
-app.get("/asset",(req,res)=>{
+app.get("/asset",(req,res)=>{ //no restriction
     ShortAxios(req,res,"get","/asset");
 })
 //Create new asset
-app.post("/asset",(req,res)=>{
+app.post("/asset",(req,res)=>{ //Authorized
     ShortAxios(req,res,"post","/asset",req.body);
 })
 //Get one asset by ID 
-app.get("/asset/:id",(req,res)=>{
+app.get("/asset/:id",(req,res)=>{ //Authorized
     console.log("get /asset/:id=" + req.params.id);
     ShortAxios(req,res,"get","/asset","",req.params.id);
 })
 //Update one Asset by ID
-app.put("/asset/:id", (req,res)=>{ //existiert nicht?
+app.put("/asset/:id", (req,res)=>{ //ANPASSEN BENNY, Authorized, wenn eigener
     ShortAxios(req,res,"put","/asset",req.data,req.params.id); 
 })
 //Delete one Asset by ID
-app.delete("/asset/:id",(req,res)=>{ 
+app.delete("/asset/:id",(req,res)=>{ //Admin
     console.log("delete in id:"+req.params.id)
     ShortAxios(req,res,"delete","/asset","",req.params.id);
 });
 //Report one Asset
-app.post("/asset/:id/report", (req, res)=>{
+app.post("/asset/:id/report", (req, res)=>{ //no restriction
     ShortAxios(req,res,"post","/asset/report",req.body,req.params.id);
 })
 
@@ -286,7 +286,7 @@ app.get("/login",(req,res)=>{
     
     res.sendFile(__dirname+"/src/html/index.html")
 })
-app.post("/login",(req,res)=>{
+app.post("/login",(req,res)=>{ //no restriction, kein Authorized oder Admin
     d=req.body;
     clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
@@ -339,7 +339,7 @@ app.post("/login",(req,res)=>{
                     res.send(error);
                 }
             }); 
-}); 
+});
 // SessionStorage auslesen
 function save(){
     storedUserStr= JSON.stringify(sessionStorage.getItem("storedUser"));
@@ -544,7 +544,7 @@ app.get("/ss/:id",(req,res)=>{
     res.send(temp);
 })
 //Logout und delete Session
-app.delete("/logout",(req,res)=>{
+app.delete("/logout",(req,res)=>{ //Authorized,Admin
     //delete Session
     CookieData=req.cookies;
     console.log(CookieData,CookieData["SessionData"]["SessionID"]);
@@ -555,14 +555,14 @@ app.delete("/logout",(req,res)=>{
     res.redirect("/login");
 })
 //Register
-app.post("/register",(req,res)=>{
+app.post("/register",(req,res)=>{ //Authorized,Admin
     ShortAxios(req,res,"post","/register",req.body);
 })
 
 
 //1.6) TEMPLATE
 //Get all templates (suggestions)
-app.get("/template",(req,res)=>{
+app.get("/template",(req,res)=>{ //Authorized
     ShortAxios(req,res,"get","/template");
 })
 
@@ -572,19 +572,19 @@ app.get("/marker",(req,res)=>{
     ShortAxios(req,res,"get","/marker");
 })
 //create one new marker
-app.post("/marker",(req,res)=>{
+app.post("/marker",(req,res)=>{ //Admin
     ShortAxios(req,res,"post","/marker",req.body);
 })
 //get one marker by id
-app.get("/marker/:id",(req,res)=>{  //Testen
+app.get("/marker/:id",(req,res)=>{  //no restriction
     ShortAxios(req,res,"get","/marker","",req.params.id);
 })
 //change one marker
-app.put("/marker/:id",(req,res)=>{ 
+app.put("/marker/:id",(req,res)=>{  //Admin
     ShortAxios(req,res,"put","/marker",req.body,req.params.id);
 })
 //delete one marker by id
-app.delete("/marker/:id",(req,res)=>{ 
+app.delete("/marker/:id",Admin,(req,res)=>{  //Admin
     ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
 
