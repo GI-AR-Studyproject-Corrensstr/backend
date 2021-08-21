@@ -124,7 +124,10 @@ function ShortAxios(req,res,a,msgpth,d,id){
     clog("Eingang Shortaxios(req,res,a,msgpth,d,id) mit req,res",",a:",a,",msgpth:",msgpth,",d:",d,",id:",id,")");
     let raster={"":""}; 
     raster=Object.assign({},rasterX);
-    if(id!=undefined){
+    if(isFunction(arguments[arguments.length-1])){
+        callback=arguments[arguments.length-1];
+    }
+    if(id!=undefined&&!isFunction(id)){
         id="/"+id;
         if(raster[msgpth].includes("/ID")){
             raster[msgpth]=raster[msgpth].replace("/ID",id);
@@ -137,7 +140,10 @@ function ShortAxios(req,res,a,msgpth,d,id){
             axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(PrintDate(),msgpth,a,"successful");
-                res.send(response.data);
+                if(isFunction(callback)){
+                    return callback(req,res,response);
+                }else{
+                res.send(response.data);}
             })
             .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
@@ -147,7 +153,10 @@ function ShortAxios(req,res,a,msgpth,d,id){
             .then((response)=>{
                 console.log(PrintDate(),msgpth,a,"successful");
                 clog("response.data:",response.data);
-                res.send(response.data);
+                if(isFunction(callback)){
+                    return callback(req,res,response);
+                }else{
+                res.send(response.data);}
                 })
             .catch((error)=>{clog("Erroraufruf");err(error,req,res,a,msgpth,d)});
             break;
@@ -156,7 +165,10 @@ function ShortAxios(req,res,a,msgpth,d,id){
             axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(PrintDate(),msgpth+" "+a+" successful");
-                res.send(response.data);
+                if(isFunction(callback)){
+                    return callback(req,res,response);
+                }else{
+                res.send(response.data);}
             })
             .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
@@ -165,7 +177,10 @@ function ShortAxios(req,res,a,msgpth,d,id){
             axios.delete("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(PrintDate(),msgpth+" "+a+" successful");
-                res.send(response.data);
+                if(isFunction(callback)){
+                    return callback(req,res,response);
+                }else{
+                res.send(response.data);}
             })
             .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
             break;
@@ -180,7 +195,7 @@ app.get("/db",(req,res)=>{  //get all suggestions, no restriction
     ShortAxios(req,res,"get","/db");
     });
 
-app.post("/db",(req,res)=>{ //add new suggestion, Authorized
+app.post("/db",Authorized,(req,res)=>{ //add new suggestion, Authorized
     ShortAxios(req,res,"post","/db",req.body);
     });
 
@@ -188,10 +203,16 @@ app.get("/db/:id",(req,res)=>{  //get one suggestion, no restriction
     ShortAxios(req,res,"get","/db","",req.params.id);
     });
 
-app.put("/db/:id",(req,res)=>{  //change one suggestion, User, wenn du owner bist?
+app.put("/db/:id",Authorized,(req,res,next)=>{
+    if (isOwner(req,res)){
+            next();
+        }else{
+            next("route");
+        };
+},(req,res)=>{  //change one suggestion, User, wenn du owner bist?
     ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
-app.delete("/db/:id",(req,res)=>{ //delete one suggestion, Admin
+app.delete("/db/:id",Admin,(req,res)=>{ //delete one suggestion, Admin
     ShortAxios(req,res,"delete","/db","",req.params.id);
 });
 
@@ -201,7 +222,7 @@ app.get("/db/:id/like",(req,res)=>{  //get all likes of one suggestion, no restr
 app.get("/db/:id/comment",(req,res)=>{  //get all comments of one suggestion, no restriction
     ShortAxios(req,res,"get","/db/comment","",req.params.id);
     });
-app.post("/db/:id/report",(req,res)=>{  //report one suggestion, user_id und description , Authorized
+app.post("/db/:id/report",Authorized,(req,res)=>{  //report one suggestion, user_id und description
     ShortAxios(req,res,"post","/db/report",req.body,req.params.id);
     });
 
@@ -210,15 +231,15 @@ app.post("/db/:id/report",(req,res)=>{  //report one suggestion, user_id und des
 app.get("/like",(req,res)=>{ //get all likes, no restriction
     ShortAxios(req,res,"get","/like");
 })
-app.post("/like",(req,res)=>{ //add new like, Authorized
+app.post("/like",Authorized,(req,res)=>{ //add new like
     ShortAxios(req,res,"post","/like",req.body);
 })
 
 //////////
-app.get("/like:id",(req,res)=>{ //get one like, Authorized
+app.get("/like:id",Authorized,(req,res)=>{ //get one like, Authorized
     ShortAxios(req,res,"get","/like","",req.params.id);
 })
-app.put("/like:id", (req,res)=>{ //change one like, Authorized
+app.put("/like:id",Authorized,(req,res)=>{ //change one like, Authorized
     ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
 app.delete("/like:id", (req,res)=>{ //delete one like, Authorized wenn eigener.
@@ -230,21 +251,21 @@ app.delete("/like:id", (req,res)=>{ //delete one like, Authorized wenn eigener.
 app.get("/comment",(req,res)=>{ //get all comments, no restriction
     ShortAxios(req,res,"get","/comment");
 })
-app.post("/comment",(req,res)=>{ //create new comment, Authorized
+app.post("/comment",Authorized,(req,res)=>{ //create new comment, Authorized
     ShortAxios(req,res,"post","/comment",req.body);
 })
 ////////
-app.get("/comment/:id",(req,res)=>{ //get one comment by ID, Authorized
+app.get("/comment/:id",Authorized,(req,res)=>{ //get one comment by ID, Authorized
     ShortAxios(req,res,"get","/comment","",req.params.id);
 })
 app.put("/comment/:id", (req,res)=>{ //change one comment by ID, Authorized, wenn eigener
     ShortAxios(req,res,"put","/comment",req.body,req.params.id);
 })
-app.delete("/comment/:id", (req,res,next)=>{ //delete one comment by ID, Admin
+app.delete("/comment/:id",Admin,(req,res)=>{ //delete one comment by ID, Admin
     ShortAxios(req,res,"delete","/comment",req.body,req.params.id);
 })
 ////////
-app.get("/comment/:id/vote",(req,res)=>{  //get all likes of one comment, Authorized 
+app.get("/comment/:id/vote",Authorized,(req,res)=>{  //get all likes of one comment, Authorized 
     ShortAxios(req,res,"get","/comment/like","",req.params.id);
     });
 app.post("/comment/:id/report",(req,res)=>{  //get all reports of one comment, no restriction
@@ -258,20 +279,20 @@ app.get("/asset",(req,res)=>{ //no restriction
     ShortAxios(req,res,"get","/asset");
 })
 //Create new asset
-app.post("/asset",(req,res)=>{ //Authorized
+app.post("/asset",Authorized,(req,res)=>{ 
     ShortAxios(req,res,"post","/asset",req.body);
 })
 //Get one asset by ID 
-app.get("/asset/:id",(req,res)=>{ //Authorized
+app.get("/asset/:id",Authorized,(req,res)=>{
     console.log("get /asset/:id=" + req.params.id);
     ShortAxios(req,res,"get","/asset","",req.params.id);
 })
 //Update one Asset by ID
-app.put("/asset/:id", (req,res)=>{ //ANPASSEN BENNY, Authorized, wenn eigener
-    ShortAxios(req,res,"put","/asset",req.data,req.params.id); 
+app.put("/asset/:id",Authorized,(req,res)=>{ //post ist hier richtig, framework der Mastergruppe kann kein put für dateien (die bei assets angehängt sind, aka 3d Dateien/Bilder)
+    ShortAxios(req,res,"post","/asset",req.body,req.params.id); //prüfen ob das so geht
 })
 //Delete one Asset by ID
-app.delete("/asset/:id",(req,res)=>{ //Admin
+app.delete("/asset/:id",Admin,(req,res)=>{ //Admin
     console.log("delete in id:"+req.params.id)
     ShortAxios(req,res,"delete","/asset","",req.params.id);
 });
@@ -282,11 +303,11 @@ app.post("/asset/:id/report", (req, res)=>{ //no restriction
 
 //1.5) Login & Register
 //Login Post
-app.get("/login",(req,res)=>{
+app.get("/login",NotAuthorized,(req,res)=>{
     
     res.sendFile(__dirname+"/src/html/index.html")
 })
-app.post("/login",(req,res)=>{ //no restriction, kein Authorized oder Admin
+app.post("/login",NotAuthorized,(req,res)=>{ //no restriction, kein Authorized oder Admin
     d=req.body;
     clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
@@ -340,7 +361,7 @@ app.post("/login",(req,res)=>{ //no restriction, kein Authorized oder Admin
                 }
             }); 
 });
-// SessionStorage auslesen
+// expiry und SessionStorage in .env abspeichern
 function save(){
     storedUserStr= JSON.stringify(sessionStorage.getItem("storedUser"));
     expiryStr=JSON.stringify(expiry);
@@ -382,14 +403,25 @@ function load(){
             console.log(PrintDate(), "No backup restored");
         }
 }
+function isFunction(functionToCheck) { //https://stackoverflow.com/questions/5999998/check-if-a-variable-is-of-function-type
+    var getType = {};
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+}
+function test(a,b,c){
+    console.log(arguments);
+    console.log(arguments.length);
+    console.log(arguments[arguments.length-1]);
+    console.log(isFunction(arguments[arguments.length-1]));
+    arguments[arguments.length-1]("Hallo","Welt");
 
-
+}
 
 app.get("/ff",(req,res,next)=>{
 
     "Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (,req,res,a,msgpth,d,id,)"
-    console.log("in ff")
-    GetUser(id=123);
+    console.log("in ff");
+    test("a","b",(alpha,omega)=>{console.log(alpha,omega);});
+    //GetUser(id=123);
     //log=true;
     //clog("tolles Log oder?");
     
@@ -447,6 +479,15 @@ app.get("/ff",(req,res,next)=>{
     console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
     
 //}
+//Utility
+async function isOwner(req,res){
+    return ShortAxios(req,res,"get",req.path,"",req.params.id,(req,res,response)=>{
+    GetUserByUID(req.cookies)
+    if(response.data["user_id"]==GetUserFromCookies(req).id){
+        return true;
+    }else{
+        return false;
+    }})}
 function checkAuthenticated(req,res){
     clog("Entry checkAuthenticated");
     if(Object.getPrototypeOf(req.cookies)!=null){
@@ -470,13 +511,21 @@ function checkAuthenticated(req,res){
     }
 }
 
-//Utility
 function GetUserByName(name)
 {
         storedUser= sessionStorage.getItem("storedUser");
         uid=storedUser[name];
         data=expiry.obj[uid];
         return {uid,...data};       
+}
+function GetUserFromCookies(req){
+    try{
+    TEMPCookies= req.cookies["SessionData"]
+    return GetUserByUID(TEMPCookies.uid);
+    }catch{
+        console.log("Error in GetUserFromCookies");
+        
+    }
 }
 function GetUserByUID(uid){
     data=expiry.obj[uid];
@@ -544,7 +593,7 @@ app.get("/ss/:id",(req,res)=>{
     res.send(temp);
 })
 //Logout und delete Session
-app.delete("/logout",(req,res)=>{ //Authorized,Admin
+app.delete("/logout",Authorized,(req,res)=>{ //Authorized,Admin
     //delete Session
     CookieData=req.cookies;
     console.log(CookieData,CookieData["SessionData"]["SessionID"]);
@@ -555,14 +604,14 @@ app.delete("/logout",(req,res)=>{ //Authorized,Admin
     res.redirect("/login");
 })
 //Register
-app.post("/register",(req,res)=>{ //Authorized,Admin
+app.post("/register",NotAuthorized,(req,res)=>{ //no Authorized,no Admin
     ShortAxios(req,res,"post","/register",req.body);
 })
 
 
 //1.6) TEMPLATE
 //Get all templates (suggestions)
-app.get("/template",(req,res)=>{ //Authorized
+app.get("/template",Authorized,(req,res)=>{
     ShortAxios(req,res,"get","/template");
 })
 
@@ -572,7 +621,7 @@ app.get("/marker",(req,res)=>{
     ShortAxios(req,res,"get","/marker");
 })
 //create one new marker
-app.post("/marker",(req,res)=>{ //Admin
+app.post("/marker",Admin,(req,res)=>{ 
     ShortAxios(req,res,"post","/marker",req.body);
 })
 //get one marker by id
@@ -580,11 +629,11 @@ app.get("/marker/:id",(req,res)=>{  //no restriction
     ShortAxios(req,res,"get","/marker","",req.params.id);
 })
 //change one marker
-app.put("/marker/:id",(req,res)=>{  //Admin
+app.put("/marker/:id",Admin,(req,res)=>{  
     ShortAxios(req,res,"put","/marker",req.body,req.params.id);
 })
 //delete one marker by id
-app.delete("/marker/:id",Admin,(req,res)=>{  //Admin
+app.delete("/marker/:id",Admin,(req,res)=>{ 
     ShortAxios(req,res,"delete","/marker",req.data,req.params.id);
 });
 
@@ -609,7 +658,7 @@ function Admin(req,res,next){
         
     }
 }
-function Autorized(req,res,next){
+function Authorized(req,res,next){
     clog("Entry IsAuthorized?")
     if(!checkAuthenticated(req,res)){
         clog("-->No")
@@ -619,14 +668,18 @@ function Autorized(req,res,next){
         next();
     }
 }
-app.all("*",Autorized,authRouter);
+function NotAuthorized(req,res,next){
+    clog("Entry IsNotAuthorized?")
+    if(checkAuthenticated(req,res)){
+        clog("-->Disagree, cant pass")
+        res.redirect("/entwurfsAuswahl");
+    }else{
+        clog("-->Agree, cant pass... redirect")
+        next();
+    }
+}
+app.all("*",Authorized,authRouter);
 app.all("*",openRouter);
-/*authRouter.all("*",(req,res,next)=>{
-    console.log(PrintDate(),"authRouter.all")
-    console.log(PrintDate(),"!checkAuthenticated", !checkAuthenticated(req,res) );
-    if(!checkAuthenticated(req,res)) {console.log(PrintDate(),"all:next(route)");next('route');}
-    else next();
-})*/
 //Get-Method Entwurfs-Auswahl 
 authRouter.get("/entwurfsAuswahl", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\entwurfsAuswahl.html")
@@ -662,7 +715,7 @@ openRouter.get("/entwurfsAnsicht", (req, res, next) => {
 openRouter.get("/", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\index.html")
 });
-openRouter.all("*",Autorized, (req,res,next)=>{
+openRouter.all("*",Authorized, (req,res,next)=>{
     res.redirect("/entwurfsAuswahl");
 })
 openRouter.all("*", (req,res,next)=>{
