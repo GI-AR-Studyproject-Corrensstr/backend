@@ -55,7 +55,9 @@ const rasterX={ "/asset":"/api/asset",
                 "/login":"/api/login",
                 "/marker":"/api/marker",
                 "/template":"/api/asset/template",
-                "/register":"/api/register"}
+                "/register":"/api/register",
+                "/ff":"/api/suggestion"    
+            }
                 clog(rasterX);
 
 // Bereitgestellte Bibliotheken
@@ -106,7 +108,8 @@ function err(error,req,res,a,msgpth,d) {
       console.log('Error', error.message);
       console.log(res._header);
     }
-    res.send(error.response.data)
+    res.send(error);
+    //res.send(error.response.data)
 }
 
  /**
@@ -120,13 +123,14 @@ function err(error,req,res,a,msgpth,d) {
   */
 
 function ShortAxios(req,res,a,msgpth,d,id){
-    log=false;
+    
     clog("Eingang Shortaxios(req,res,a,msgpth,d,id) mit req,res",",a:",a,",msgpth:",msgpth,",d:",d,",id:",id,")");
     let raster={"":""}; 
     raster=Object.assign({},rasterX);
     if(isFunction(arguments[arguments.length-1])){
+        clog("Short Axios: last item is function");
         callback=arguments[arguments.length-1];
-    }
+    }else callback=undefined;
     if(id!=undefined&&!isFunction(id)){
         id="/"+id;
         if(raster[msgpth].includes("/ID")){
@@ -137,7 +141,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
         switch (a) {
         case "get":
             console.log(PrintDate(),"get: http://"+dbHost+":"+port+raster[msgpth]);
-            axios.get("http://"+dbHost+":"+port+raster[msgpth])
+            return axios.get("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(PrintDate(),msgpth,a,"successful");
                 if(isFunction(callback)){
@@ -145,11 +149,11 @@ function ShortAxios(req,res,a,msgpth,d,id){
                 }else{
                 res.send(response.data);}
             })
-            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf");/* err(error,req,res,a,msgpth,d)*/});
             break;
         case "post":
             console.log(PrintDate(),"http://",dbHost,":",port,raster[msgpth]+",",d);
-            axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
+            return axios.post("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(PrintDate(),msgpth,a,"successful");
                 clog("response.data:",response.data);
@@ -162,7 +166,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
             break;
         case "put":
             console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id,d);
-            axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
+            return axios.put("http://"+dbHost+":"+port+raster[msgpth],{...d})
             .then((response)=>{
                 console.log(PrintDate(),msgpth+" "+a+" successful");
                 if(isFunction(callback)){
@@ -174,7 +178,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
             break;
         case "delete":
             console.log("delete: http://"+dbHost+":"+port+raster[msgpth])
-            axios.delete("http://"+dbHost+":"+port+raster[msgpth])
+            return axios.delete("http://"+dbHost+":"+port+raster[msgpth])
             .then((response)=>{
                 console.log(PrintDate(),msgpth+" "+a+" successful");
                 if(isFunction(callback)){
@@ -416,11 +420,27 @@ function test(a,b,c){
 
 }
 
-app.get("/ff",(req,res,next)=>{
+app.put("/ff",async (req,res,next)=>{
+TempIsOwner= await isOwner(req,res);
+console.log("TempIsOwner", await isOwner(req,res));
 
-    "Eingang Shortaxios(req,res,a,msgpth,d,id) mit: (,req,res,a,msgpth,d,id,)"
-    console.log("in ff");
-    test("a","b",(alpha,omega)=>{console.log(alpha,omega);});
+//await isOwner(req,res).then(console.log("answere"));
+console.log("TempIsOwnerWithuotAwait", TempIsOwner);
+console.log("TempIsOwner",await TempIsOwner);
+res.send("ok2.0");
+})
+app.get("/ff",(req,res,next)=>{
+    console.log(isFunction());
+      /*
+    clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
+    axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
+            .then((response)=>{
+                console.log("logged in", d)
+            }).catch((error)=>{console.log(error);});;*/
+    //test("a","b",(alpha,omega)=>{console.log(alpha,omega);});
+
+
+
     //GetUser(id=123);
     //log=true;
     //clog("tolles Log oder?");
@@ -480,14 +500,30 @@ app.get("/ff",(req,res,next)=>{
     
 //}
 //Utility
-async function isOwner(req,res){
-    return ShortAxios(req,res,"get",req.path,"",req.params.id,(req,res,response)=>{
-    GetUserByUID(req.cookies)
-    if(response.data["user_id"]==GetUserFromCookies(req).id){
-        return true;
-    }else{
-        return false;
-    }})}
+function isOwner(req,res){    
+    console.log("isOwner_intern:","req.path",rasterX[req.path])
+
+   /* return new Promise(resolve=>{
+        if(true)resolve(true);
+        else resolve(false)
+    });*/
+    return ShortAxios(req,res,"get",req.path,(req,res,response)=>{
+        try{
+        return new Promise(resolve=>{
+        if(response.data["user_id"]==GetUserFromCookies(req).id){
+            console.log("isOwner_intern:",true)
+            return resolve(true);
+        }else{
+            console.log("isOwner_intern:",false)
+            return resolve(false);
+        }
+    }
+    )
+    }catch{return null;}
+    
+})
+}
+
 function checkAuthenticated(req,res){
     clog("Entry checkAuthenticated");
     if(Object.getPrototypeOf(req.cookies)!=null){
@@ -511,8 +547,7 @@ function checkAuthenticated(req,res){
     }
 }
 
-function GetUserByName(name)
-{
+function GetUserByName(name){
         storedUser= sessionStorage.getItem("storedUser");
         uid=storedUser[name];
         data=expiry.obj[uid];
@@ -521,7 +556,7 @@ function GetUserByName(name)
 function GetUserFromCookies(req){
     try{
     TEMPCookies= req.cookies["SessionData"]
-    return GetUserByUID(TEMPCookies.uid);
+    return GetUserByUID(TEMPCookies.SessionID);
     }catch{
         console.log("Error in GetUserFromCookies");
         
