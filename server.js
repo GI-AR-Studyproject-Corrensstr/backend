@@ -12,21 +12,21 @@ const e = require('express');
 sessionStorage.setItem("storedUser",{});
 var uniqid = require('uniqid');
 var expiry = require('expiryprops');
-var SessionLength=30000 //ms
+var SessionLength=60000*60 //Stunde in ms
 expiry.defaultTimer(SessionLength);
 var colors = require('colors');
 var cookieParser = require('cookie-parser');
 const updateDotenv = require('update-dotenv');
 const { env } = require('process');
+const { compileFunction } = require('vm');
 app.use(cookieParser());
 
 //session store abspeichern https://www.npmjs.com/package/session-file-store
 //https://stackoverflow.com/questions/11744975/enabling-https-on-express-js
-
+console.log(PrintDate(),"starting server...")
 //port="3040"; //Testumgebung
 port="80"; //Masterserver
-
-load();
+var logs;
 
 var ssloptions = {key: privateKey, cert: certificate}; 
 
@@ -38,7 +38,7 @@ if (process.env.DB_HOST) {
   } else {
     dbHost = 'localhost';
   }
-  process.env.logs=!undefined?logs=process.env.logs:true;
+  process.env.logs=!undefined?logs=process.env.logs:logs=undefined;
   clog("talkative logs activated")
 
 clog("dbHost="+dbHost)
@@ -59,7 +59,8 @@ const rasterX={ "/asset":"/api/asset",
                 "/ff":"/api/suggestion"    
             }
                 clog(rasterX);
-
+                
+load();
 // Bereitgestellte Bibliotheken
 app.use('/bootstrap', express.static(__dirname+'/node_modules/bootstrap/dist'));
 app.use('/jquery', express.static(__dirname+"/node_modules/jquery/dist/"));
@@ -78,7 +79,6 @@ app.use("/html",express.static(__dirname+"/src/html/"));
 app.get("/" ,(req,res,next)=>{
     res.sendFile(__dirname+"/src/html/index.html")
     })
-
 /**
  * @param {*} req 
  * @param {*} res 
@@ -372,16 +372,22 @@ function save(){
 updateDotenv({
     storedUser: storedUserStr,
     expiry: expiryStr
-  }).then(() => updateDotenv({Last_Backup: PrintDate(true)}))
+  }).then(() => {updateDotenv({Last_Backup: PrintDate(true)}); clog("save():errorless backup");})
 }
 function load(){
+    clog("Entry load()");
     try{
-    if(env.process.storedUser!=undefined && env.process.expiry != undefined){
-        
-        TEMPexpiry= JSON.parse(env.process.expiry).obj;
+        clog("load():env.storedUser!=undefined",env.storedUser != undefined);
+        clog("load():env.expiry != undefined",env.expiry != undefined);
+    if(env.storedUser!=undefined && env.expiry != undefined){
+        clog("load():Into ifclause true")
+        TEMPexpiry= JSON.parse(env.expiry).obj;
+        TEMPstoredUser= JSON.parse(env.storedUser);
         sessionStorage.setItem("storedUser",TEMPstoredUser);
-
+        clog("load():errorless reading from env")
         for (a in TEMPexpiry) {
+            clog("load():TEMPexpiry[a].Logintime+expiry.defaultTimer()",TEMPexpiry[a].Logintime+expiry.defaultTimer());
+            clog("load():TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime()",TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime());
             if(TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime()){
                 newTime= TEMPexpiry[a].Logintime+expiry.defaultTimer()-new Date().getTime();
                 expiry.addKeyValue(a,TEMPexpiry[a],newTime,(_data=TEMPexpiry[a])=>{
@@ -395,16 +401,15 @@ function load(){
             }
                 
             }
-        TEMPstoredUser= JSON.parse(env.process.storedUser);
-        updateDotenv({
-            storedUser: undefined,
-            expiry: undefined,
-            Last_Backup: undefined
-          }).then(() => console.log(PrintDate(), "Backup restored successfully"))
+            clog("load():errorless writing to expiry and storedUser")
+            save();
+            console.log(PrintDate(), "load():Backup restored successfully");
         }else{
             console.log(PrintDate(), "No backup restored");
+            clog("Out load()");
         }}catch(e){
             console.log(PrintDate(), "No backup restored");
+            clog("Out load()");
         }
 }
 function isFunction(functionToCheck) { //https://stackoverflow.com/questions/5999998/check-if-a-variable-is-of-function-type
@@ -420,17 +425,16 @@ function test(a,b,c){
 
 }
 
-app.put("/ff",async (req,res,next)=>{
+app.put("/ff/:id",async (req,res,next)=>{
 TempIsOwner= await isOwner(req,res);
 console.log("TempIsOwner", await isOwner(req,res));
 
 //await isOwner(req,res).then(console.log("answere"));
 console.log("TempIsOwnerWithuotAwait", TempIsOwner);
 console.log("TempIsOwner",await TempIsOwner);
-res.send("ok2.0");
+res.send("ok 2.0");
 })
 app.get("/ff",(req,res,next)=>{
-    console.log(isFunction());
       /*
     clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
     axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
@@ -501,16 +505,27 @@ app.get("/ff",(req,res,next)=>{
 //}
 //Utility
 function isOwner(req,res){    
-    console.log("isOwner_intern:","req.path",rasterX[req.path])
-
-   /* return new Promise(resolve=>{
+    console.log("isOwner_intern:","req.path",req.path,"rasterX[req.path]",rasterX[req.path],"id=",req.params.id);
+    /* return new Promise(resolve=>{
         if(true)resolve(true);
         else resolve(false)
     });*/
-    return ShortAxios(req,res,"get",req.path,(req,res,response)=>{
+    var reqpath=req.path;
+    var id=req.params.id;
+    if(id!==undefined){
+        clog("in ifclause")
+        id = "/"+id
+        reqpath=reqpath.replace(id,"");
+    }
+
+    clog("reqpath",reqpath);
+    return ShortAxios(req,res,"get",reqpath,"",req.params.id,(req,res,response)=>{
         try{
         return new Promise(resolve=>{
-        if(response.data["user_id"]==GetUserFromCookies(req).id){
+            clog("response.data[user_id]", response.data.data["user_id"]);
+            clog("GetUserFromCookies(req).id",GetUserFromCookies(req).id);
+        if(response.data.data["user_id"]==GetUserFromCookies(req).id){
+
             console.log("isOwner_intern:",true)
             return resolve(true);
         }else{
@@ -585,7 +600,7 @@ for(a in expiry.obj){
 }
 
 function clog(...args){
-    if(logs) console.log(PrintDate(),...args);
+    if(logs!=undefined) console.log(PrintDate(),...args);
 }
 
 function PrintDate(bw){
@@ -634,7 +649,7 @@ app.delete("/logout",Authorized,(req,res)=>{ //Authorized,Admin
     console.log(CookieData,CookieData["SessionData"]["SessionID"]);
     res.clearCookie("SessionData");
     expiry.rmKey(key=CookieData["SessionData"]["SessionID"]);
-        res.send("Session deleted");
+        //res.send("Session deleted");
     save();
     res.redirect("/login");
 })
