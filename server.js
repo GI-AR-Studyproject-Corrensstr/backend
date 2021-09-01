@@ -238,7 +238,7 @@ app.post("/like",Authorized,(req,res)=>{ //add new like
 app.get("/like:id",Authorized,(req,res)=>{ //get one like, Authorized
     ShortAxios(req,res,"get","/like","",req.params.id);
 })
-app.put("/like:id",Authorized,(req,res)=>{ //change one like, Authorized
+app.put("/like:id",Authorized,Owner,(req,res)=>{ //change one like, Authorized
     ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
 app.delete("/like:id", (req,res)=>{ //delete one like, Authorized wenn eigener.
@@ -416,102 +416,12 @@ function load(){
             clog("Out load()");
         }
 }
+
+//Utility
 function isFunction(functionToCheck) { //https://stackoverflow.com/questions/5999998/check-if-a-variable-is-of-function-type
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
-function test(a,b,c){
-    console.log(arguments);
-    console.log(arguments.length);
-    console.log(arguments[arguments.length-1]);
-    console.log(isFunction(arguments[arguments.length-1]));
-    arguments[arguments.length-1]("Hallo","Welt");
-
-}
-
-app.get("/dd/:id",(req,res,next)=>{
-    SetOwnership(req,false);
-    clog("reihenowner",isOwner(req),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res));
-})
-app.put("/ff/:id",Owner, async (req,res,next)=>{
-TempIsOwner=  isOwner(req);
-console.log("TempIsOwner",  isOwner(req,res));
-
-//await isOwner(req,res).then(console.log("answere"));
-console.log("TempIsOwnerWithuotAwait",await TempIsOwner);
-console.log("TempIsOwner", TempIsOwner);
-res.send("ok 2.0");
-})
-app.get("/ff",(req,res,next)=>{
-      /*
-    clog("Loginpath","http://"+dbHost+":"+port+rasterX["/login"],d);
-    axios.post("http://"+dbHost+":"+port+rasterX["/login"],{...d})
-            .then((response)=>{
-                console.log("logged in", d)
-            }).catch((error)=>{console.log(error);});;*/
-    //test("a","b",(alpha,omega)=>{console.log(alpha,omega);});
-
-
-
-    //GetUser(id=123);
-    //log=true;
-    //clog("tolles Log oder?");
-    
-    //console.log("expiry",expiry);
-    /*Jname="cq3o5ikkshbhrdz";
-    Jdata={"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735};
-
-    expiry.addKeyValue(Jname,Jdata,(_data=data)=>{ //_data=Object.assign({},data)
-        storedUser= sessionStorage.getItem("storedUser");
-        delete storedUser[_data["id"]];
-        console.log(PrintDate(), "deleted Session from",_data["first_name"],_data["last_name"],"ID :",_data["id"])
-        sessionStorage.setItem("storedUser",storedUser);
-    });
-
-    var currentdate = new Date(); 
-    currentdate.getTime();
-
-    console.log("JSONToString",JSON.stringify(expiry));
-    console.log("after JSON parse",JSON.parse(JSON.stringify(expiry)))
-    console.log("after JSON parse",JSON.parse(JSON.stringify(expiry)).obj)
-    expData=JSON.parse(JSON.stringify(expiry)).obj
-    for (a in expData) {
-        console.log(expData[a])
-        console.log(expData[a].Logintime)
-    }*/
-    
-    //expiry={"obj":{"cq3o5ikkshbhrdz":{"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735}}}
-    //console.log("expiry",expiry);
-    res.send("ok");
-});
-/*(req,res)=>{
-    res.redirect("/login")
-    //addKeyValue(key, value [, timeoutMs] [, callback])
-
-    /*if(req.cookies){
-        console.log(PrintDate(), "No Cookies Exist");
-        res.send("No cookies Exist")
-    }else{
-        console.log(PrintDate(),req.cookies);
-        res.send("ok")
-    }*/
-    //res.send("ende")
-
-   /* data= {
-        "id": 1,
-        "first_name": "Test",
-        "last_name": "User",
-        "profile_photo": "https://www.processmaker.com/wp-content/uploads/2020/10/citizen-developer-768x512.jpg"
-    }
-    expiry.addKeyValue("SessionID",data,(_data=data)=>{
-        delete data[deldel];
-        console.log("afterdel", data);
-
-        console.log(PrintDate(),"callback activated","deleted", _data)})
-    console.log(PrintDate(),": obj :", expiry.obj["SessionID"]);*/
-    
-//}
-//Utility
 async function Owner(req,res,next){
     clog("Owner():Entry")
     myvar=await isOwner(req);
@@ -527,10 +437,6 @@ async function isOwner(req){
         if(CheckOwnership(req)!==undefined){
             return CheckOwnership(req);
         }
-    /* return new Promise(resolve=>{
-        if(true)resolve(true);
-        else resolve(false)
-    });*/
     var reqpath=req.path;
     var id=req.params.id;
     if(id!==undefined){
@@ -568,7 +474,6 @@ function checkAuthenticated(req,res){
     if(Object.getPrototypeOf(req.cookies)!=null){
         //Case cookies are Set
         if(req.cookies["SessionData"]==undefined){
-           // res.redirect("/login")
             //andere cookies gesetzt, aber nicht unsere.
             clog("other cookies are set ...redirect...")
             return false;
@@ -581,8 +486,6 @@ function checkAuthenticated(req,res){
         clog("no cookies are set ...redirect...");
         return false;
         //no cookies are set aka no login aka guest.
-
-        
     }
 }
 function SetOwnership(req,bool){
@@ -605,6 +508,7 @@ function SetOwnership(req,bool){
         TEMPobj={...TEMPobj,ownership};
     }
     expiry.obj[TEMPCookies.SessionID]=TEMPobj;
+    save();
 }
 function CheckOwnership(req){
     var pathx=req.path;
@@ -675,7 +579,7 @@ function PrintDate(bw){
     if(bw==undefined) return datetime.brightBlue;
     else return datetime;
 }
-app.get("/ss",(req,res)=>{
+app.get("/ss",Admin,(req,res)=>{
     temp=[];
     try {
     //for (a of sessionStorage.getItem("keys")) {}
@@ -688,7 +592,7 @@ app.get("/ss",(req,res)=>{
     } catch(e){temp="Bitte zuerst anmelden"}
     res.send(temp);
 })
-app.get("/ss/:id",(req,res)=>{
+app.get("/ss/:id",Admin,(req,res)=>{
     temp={};
     try {
     //for (a of sessionStorage.getItem("keys")) {}
