@@ -120,6 +120,7 @@ function err(error,req,res,a,msgpth,d) {
   * @param {String} msgpth Bezeichner für API-Endpoint. Schlägt in rasterX nach.
   * @param {Object} d data bei post und put in JSON
   * @param {Number} id von node aus der URL übergebener ID-Parameter
+  * @param {function} callback muss der letzte Parameter sein (dann kann res weggelassen werden), wird bei success ausgeführt und kann einen Wert returnen. Bei einem Fehler wird false returned. 
   */
 
 function ShortAxios(req,res,a,msgpth,d,id){
@@ -149,7 +150,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
                 }else{
                 res.send(response.data);}
             })
-            .catch((error)=>{clog("Erroraufruf");/* err(error,req,res,a,msgpth,d)*/});
+            .catch((error)=>{clog("Erroraufruf");if(isFunction(callback)){SetOwnership(req,false);return false} err(error,req,res,a,msgpth,d)});
             break;
         case "post":
             console.log(PrintDate(),"http://",dbHost,":",port,raster[msgpth]+",",d);
@@ -162,7 +163,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
                 }else{
                 res.send(response.data);}
                 })
-            .catch((error)=>{clog("Erroraufruf");err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf");if(isFunction(callback)){SetOwnership(req,false);return false}err(error,req,res,a,msgpth,d)});
             break;
         case "put":
             console.log("ShortAxios put: "+ "http://"+dbHost+":"+port+raster[msgpth]+id,d);
@@ -174,7 +175,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
                 }else{
                 res.send(response.data);}
             })
-            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf");if(isFunction(callback)){SetOwnership(req,false);return false} err(error,req,res,a,msgpth,d)});
             break;
         case "delete":
             console.log("delete: http://"+dbHost+":"+port+raster[msgpth])
@@ -186,7 +187,7 @@ function ShortAxios(req,res,a,msgpth,d,id){
                 }else{
                 res.send(response.data);}
             })
-            .catch((error)=>{clog("Erroraufruf"); err(error,req,res,a,msgpth,d)});
+            .catch((error)=>{clog("Erroraufruf"); if(isFunction(callback)){SetOwnership(req,false);return false}err(error,req,res,a,msgpth,d)});
             break;
         default:
             break;
@@ -425,13 +426,17 @@ function test(a,b,c){
 
 }
 
-app.put("/ff/:id",async (req,res,next)=>{
-TempIsOwner= await isOwner(req,res);
-console.log("TempIsOwner", await isOwner(req,res));
+app.get("/dd/:id",(req,res,next)=>{
+    SetOwnership(req,false);
+    clog("reihenowner",isOwner(req),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res),isOwner(req,res));
+})
+app.put("/ff/:id",Owner, async (req,res,next)=>{
+TempIsOwner=  isOwner(req);
+console.log("TempIsOwner",  isOwner(req,res));
 
 //await isOwner(req,res).then(console.log("answere"));
-console.log("TempIsOwnerWithuotAwait", TempIsOwner);
-console.log("TempIsOwner",await TempIsOwner);
+console.log("TempIsOwnerWithuotAwait",await TempIsOwner);
+console.log("TempIsOwner", TempIsOwner);
 res.send("ok 2.0");
 })
 app.get("/ff",(req,res,next)=>{
@@ -504,8 +509,21 @@ app.get("/ff",(req,res,next)=>{
     
 //}
 //Utility
-function isOwner(req,res){    
-    console.log("isOwner_intern:","req.path",req.path,"rasterX[req.path]",rasterX[req.path],"id=",req.params.id);
+async function Owner(req,res,next){
+    clog("Owner():Entry")
+    myvar=await isOwner(req);
+    if (myvar){
+            clog("Owner():isOnwer=true... next")
+            next();
+        }else{
+            clog("Owner():isOnwer=false... abbort route")
+            next("route");
+        };
+}
+async function isOwner(req){
+        if(CheckOwnership(req)!==undefined){
+            return CheckOwnership(req);
+        }
     /* return new Promise(resolve=>{
         if(true)resolve(true);
         else resolve(false)
@@ -519,17 +537,20 @@ function isOwner(req,res){
     }
 
     clog("reqpath",reqpath);
-    return ShortAxios(req,res,"get",reqpath,"",req.params.id,(req,res,response)=>{
+    return ShortAxios(req,"","get",reqpath,"",req.params.id,(req,res,response)=>{
         try{
         return new Promise(resolve=>{
             clog("response.data[user_id]", response.data.data["user_id"]);
             clog("GetUserFromCookies(req).id",GetUserFromCookies(req).id);
         if(response.data.data["user_id"]==GetUserFromCookies(req).id){
-
-            console.log("isOwner_intern:",true)
+            clog("response.data.data[\"user_id\"]",response.data.data["user_id"]);
+            clog("GetUserFromCookies(req).id",GetUserFromCookies(req).id);
+            console.log("isOwner():",true)
+            SetOwnership(req);
             return resolve(true);
         }else{
-            console.log("isOwner_intern:",false)
+            console.log("isOwner():",false);
+            SetOwnership(req,false);
             return resolve(false);
         }
     }
@@ -540,7 +561,7 @@ function isOwner(req,res){
 }
 
 function checkAuthenticated(req,res){
-    clog("Entry checkAuthenticated");
+    clog("Entry checkAuthenticated()"+req.path);
     if(Object.getPrototypeOf(req.cookies)!=null){
         //Case cookies are Set
         if(req.cookies["SessionData"]==undefined){
@@ -549,7 +570,7 @@ function checkAuthenticated(req,res){
             clog("other cookies are set ...redirect...")
             return false;
         }else{
-            clog("checkAuthenticated=true");
+            clog("checkAuthenticated():true");
              return true;
             // kein redirect
         }
@@ -561,7 +582,42 @@ function checkAuthenticated(req,res){
         
     }
 }
-
+function SetOwnership(req,bool){
+    if(bool==undefined) bool=true;
+    var pathx=req.path;
+    var id=req.params.id;
+    if(id!==undefined){
+        clog("in ifclause")
+        id = "/"+id
+        pathx=pathx.replace(id,"");
+    }
+    id=req.params.id;
+    TEMPCookies= req.cookies["SessionData"]
+    TEMPobj= expiry.obj[TEMPCookies.SessionID];
+    if(Object.keys(TEMPobj).includes("ownership")&&Object.keys(TEMPobj.ownership).includes(pathx)){
+        TEMPobj.ownership[pathx][id]=bool;
+    }else{
+        var ownership={}
+        ownership[pathx]={[id]:bool};
+        TEMPobj={...TEMPobj,ownership};
+    }
+    expiry.obj[TEMPCookies.SessionID]=TEMPobj;
+}
+function CheckOwnership(req){
+    var pathx=req.path;
+    var id=req.params.id;
+    clog("CheckOwnership(): in")
+    if(id!==undefined){
+        id = "/"+id
+        pathx=pathx.replace(id,"");
+    }
+    id=req.params.id;
+    TEMPobj=expiry.obj[req.cookies["SessionData"].SessionID];
+if(Object.keys(TEMPobj).includes("ownership")&&Object.keys(TEMPobj.ownership).includes(pathx)){
+    clog("CheckOwnership(): return" +TEMPobj.ownership[pathx].id)
+    return TEMPobj.ownership[pathx].id;
+}else clog("CheckOwnership(): return undefined"); return undefined;
+}
 function GetUserByName(name){
         storedUser= sessionStorage.getItem("storedUser");
         uid=storedUser[name];
@@ -709,7 +765,7 @@ function Admin(req,res,next){
     }
 }
 function Authorized(req,res,next){
-    clog("Entry IsAuthorized?")
+    clog("Entry IsAuthorized():"+req.path);
     if(!checkAuthenticated(req,res)){
         clog("-->No")
         next("route");
