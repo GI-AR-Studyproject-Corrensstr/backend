@@ -208,13 +208,7 @@ app.get("/db/:id",(req,res)=>{  //get one suggestion, no restriction
     ShortAxios(req,res,"get","/db","",req.params.id);
     });
 
-app.put("/db/:id",Authorized,(req,res,next)=>{
-    if (isOwner(req,res)){
-            next();
-        }else{
-            next("route");
-        };
-},(req,res)=>{  //change one suggestion, User, wenn du owner bist?
+app.put("/db/:id",Authorized,Owner,(req,res)=>{  //change one suggestion, User, wenn du owner bist?
     ShortAxios(req,res,"put","/db",req.body,req.params.id);
 });
 app.delete("/db/:id",Admin,(req,res)=>{ //delete one suggestion, Admin
@@ -263,7 +257,7 @@ app.post("/comment",Authorized,(req,res)=>{ //create new comment, Authorized
 app.get("/comment/:id",Authorized,(req,res)=>{ //get one comment by ID, Authorized
     ShortAxios(req,res,"get","/comment","",req.params.id);
 })
-app.put("/comment/:id", (req,res)=>{ //change one comment by ID, Authorized, wenn eigener
+app.put("/comment/:id",Authorized,Owner,(req,res)=>{ //change one comment by ID, Authorized, wenn eigener
     ShortAxios(req,res,"put","/comment",req.body,req.params.id);
 })
 app.delete("/comment/:id",Admin,(req,res)=>{ //delete one comment by ID, Admin
@@ -388,6 +382,15 @@ function load(){
         clog("load():errorless reading from env")
         for (a in TEMPexpiry) {
             clog("load():TEMPexpiry[a].Logintime+expiry.defaultTimer()",TEMPexpiry[a].Logintime+expiry.defaultTimer());
+            currentdate= new Date(TEMPexpiry[a].Logintime+expiry.defaultTimer());
+                var datetime =  currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+            clog("load():Läuft aus",datetime.yellow);
+
             clog("load():TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime()",TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime());
             if(TEMPexpiry[a].Logintime+expiry.defaultTimer()>new Date().getTime()){
                 newTime= TEMPexpiry[a].Logintime+expiry.defaultTimer()-new Date().getTime();
