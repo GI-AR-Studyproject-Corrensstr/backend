@@ -54,6 +54,7 @@ const rasterX={ "/asset":"/api/asset",
                 "/like":"/api/vote",
                 "/login":"/api/login",
                 "/marker":"/api/marker",
+                "/marker/suggestion":"/api/marker/ID/suggestion",
                 "/template":"/api/asset/template",
                 "/register":"/api/register",
                 "/ff":"/api/suggestion"    
@@ -360,6 +361,11 @@ app.post("/login",NotAuthorized,(req,res)=>{ //no restriction, kein Authorized o
                 }
             }); 
 });
+
+app.post("/register", (req, res)=>{ //no restriction
+    ShortAxios(req,res,"post","/asset/report",req.body,req.params.id);
+})
+
 // expiry und SessionStorage in .env abspeichern
 function save(){
     storedUserStr= JSON.stringify(sessionStorage.getItem("storedUser"));
@@ -641,6 +647,10 @@ app.post("/marker",Admin,(req,res)=>{
 app.get("/marker/:id",(req,res)=>{  //no restriction
     ShortAxios(req,res,"get","/marker","",req.params.id);
 })
+//get one markers suggestions
+app.get("/marker/:id/suggestion",(req,res)=>{  //no restriction
+    ShortAxios(req,res,"get","/marker/suggestion","",req.params.id);
+})
 //change one marker
 app.put("/marker/:id",Admin,(req,res)=>{  
     ShortAxios(req,res,"put","/marker",req.body,req.params.id);
@@ -722,7 +732,6 @@ openRouter.get("/entwurfsAuswahl", (req, res, next) => {
 openRouter.get("/entwurfsAnsicht", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\entwurfsAnsichtGast.html")
 });
-
 
 //Get-Method Login
 openRouter.get("/", (req, res, next) => {
