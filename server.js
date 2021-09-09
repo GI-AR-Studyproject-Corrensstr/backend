@@ -719,7 +719,7 @@ authRouter.get("/neuerEntwurf", (req, res, next) => {
 });
 
 //Get-Method AR
-authRouter.get("/AR", (req, res, next) => {
+openRouter.get("/AR", (req, res, next) => {
     res.sendFile(__dirname+"\\src\\html\\AR.html")
 });
 
