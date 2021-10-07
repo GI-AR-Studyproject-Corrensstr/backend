@@ -40,7 +40,7 @@ if (process.env.DB_HOST) {
   }
   process.env.logs=!undefined?logs=process.env.logs:logs=undefined;
   clog("talkative logs activated")
-
+// rasterX ist die Translation von unserer API zur Master-API
 clog("dbHost="+dbHost)
 const rasterX={ "/asset":"/api/asset",
                 "/asset/report":"/api/asset/ID/report",
@@ -76,7 +76,7 @@ app.use(express.urlencoded({ extended: true}));
 
 app.use("/html",express.static(__dirname+"/src/html/"));
 
-//Website
+//Bereitstellung der Indexdatei der Website
 app.get("/" ,(req,res,next)=>{
     res.sendFile(__dirname+"/src/html/index.html")
     })
@@ -289,7 +289,7 @@ app.get("/asset/:id",Authorized,(req,res)=>{
 })
 //Update one Asset by ID
 app.put("/asset/:id",Authorized,(req,res)=>{ //post ist hier richtig, framework der Mastergruppe kann kein put für dateien (die bei assets angehängt sind, aka 3d Dateien/Bilder)
-    ShortAxios(req,res,"post","/asset",req.body,req.params.id); //prüfen ob das so geht
+    ShortAxios(req,res,"post","/asset",req.body,req.params.id);
 })
 //Delete one Asset by ID
 app.delete("/asset/:id",Admin,(req,res)=>{ //Admin
@@ -366,7 +366,11 @@ app.post("/register", (req, res)=>{ //no restriction
     ShortAxios(req,res,"post","/asset/report",req.body,req.params.id);
 })
 
-// expiry und SessionStorage in .env abspeichern
+
+/**
+ * Backupfunktion, die das expiry und SessionStorage Objekt in der lokalen .env Datei abspeichert
+ * Diese Funktion wird beim Callback eines expiry Objekts ausgeführt.
+ */
 function save(){
     storedUserStr= JSON.stringify(sessionStorage.getItem("storedUser"));
     expiryStr=JSON.stringify(expiry);
@@ -424,10 +428,18 @@ function load(){
 }
 
 //Utility
+/**
+ * 
+ * @param {*} functionToCheck Funktion, die überprüft werden soll
+ * @returns true oder false
+ */
 function isFunction(functionToCheck) { //https://stackoverflow.com/questions/5999998/check-if-a-variable-is-of-function-type
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
+/**
+ * Überprüfunng ob der aufrufende Owner ist, express-syntax mit Weiterleitung
+ */
 async function Owner(req,res,next){
     clog("Owner():Entry")
     myvar=await isOwner(req);
@@ -439,6 +451,9 @@ async function Owner(req,res,next){
             next("route");
         };
 }
+/**
+ * Überprüfunng ob der aufrufende Owner ist, Logik hinter der express-syntax
+ */
 async function isOwner(req){
         if(CheckOwnership(req)!==undefined){
             return CheckOwnership(req);
@@ -475,6 +490,10 @@ async function isOwner(req){
 })
 }
 
+/**
+ * Überprüft den Loginstatus eines Benutzers, express-syntax
+ * @returns true or false
+ */
 function checkAuthenticated(req,res){
     clog("Entry checkAuthenticated()"+req.path);
     if(Object.getPrototypeOf(req.cookies)!=null){
@@ -494,6 +513,10 @@ function checkAuthenticated(req,res){
         //no cookies are set aka no login aka guest.
     }
 }
+/**
+ * Setzt ein Attribut ownership im expiry objekt. Dieses Objekt wird abgefragt bevor anfragen an den Server gestellt werden um redundante Aufrufe zu vermeiden.
+ * @param {*} bool true oder false
+ */
 function SetOwnership(req,bool){
     if(bool==undefined) bool=true;
     var pathx=req.path;
@@ -516,6 +539,10 @@ function SetOwnership(req,bool){
     expiry.obj[TEMPCookies.SessionID]=TEMPobj;
     save();
 }
+/**
+ * Hilfsfunktion zum Überprüfen der Besitzerfrage
+ * @returns ownership Objekt
+ */
 function CheckOwnership(req){
     var pathx=req.path;
     var id=req.params.id;
@@ -546,18 +573,25 @@ function GetUserFromCookies(req){
         
     }
 }
+/**
+ * Hilfsfunktion 
+ */
 function GetUserByUID(uid){
     data=expiry.obj[uid];
     return {uid,...data}
 }
-function GetUserById(ID){ //dumm aber vielleicht mal benötigt , ungetestet
+/**
+ * Hilfsfunktion 
+ */
+function GetUserById(ID){ 
     for(a in expiry.obj){
         if(expiry.obj[a].id==ID) return {a,...expiry.obj[a]}
     }
 }
-
-function GetUserByValue(VAL){ //ungetestet
-//Jdata={"id":53,"first_name":"Maxi","last_name":"Testman","profile_photo":null,"role":"user","Logintime_readable":"18/8/2021 @ 11:53:36","Logintime":1629280416735};
+/**
+ * Hilfsfunktion 
+ */
+function GetUserByValue(VAL){
 ret={};    
 for(a in expiry.obj){
         for(b in expiry.obj[a])
@@ -567,11 +601,15 @@ for(a in expiry.obj){
     }
     return ret;
 }
-
+/**
+ * Funktion, die die Loglevelfunktionalität ermöglicht
+ */
 function clog(...args){
     if(logs!=undefined) console.log(PrintDate(),...args);
 }
-
+/**
+ *  Schreibt das aktuelle Datum lesbar und in Farbe
+ */
 function PrintDate(bw){
     var currentdate = new Date(); 
     //https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
@@ -585,6 +623,9 @@ function PrintDate(bw){
     if(bw==undefined) return datetime.brightBlue;
     else return datetime;
 }
+/**
+ *  Überprüfungspfad für Admins SessionStorage
+ */
 app.get("/ss",Admin,(req,res)=>{
     temp=[];
     try {
@@ -598,6 +639,9 @@ app.get("/ss",Admin,(req,res)=>{
     } catch(e){temp="Bitte zuerst anmelden"}
     res.send(temp);
 })
+/**
+ *  Überprüfungspfad für Admins SessionStorage
+ */
 app.get("/ss/:id",Admin,(req,res)=>{
     temp={};
     try {
@@ -740,6 +784,7 @@ openRouter.get("/", (req, res, next) => {
 openRouter.all("*",Authorized, (req,res,next)=>{
     res.redirect("/entwurfsAuswahl");
 })
+//Standart-Seite
 openRouter.all("*", (req,res,next)=>{
     res.redirect("/");
 })
