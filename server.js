@@ -242,7 +242,7 @@ app.get("/like:id",Authorized,(req,res)=>{ //get one like, Authorized
 app.put("/like:id",Authorized,Owner,(req,res)=>{ //change one like, Authorized
     ShortAxios(req,res,"put","/like",req.body,req.params.id);
 })
-app.delete("/like:id", (req,res)=>{ //delete one like, Authorized wenn eigener.
+app.delete("/like:id",Authorized,Owner,(req,res)=>{ //delete one like, Authorized wenn eigener.
     ShortAxios(req,res,"delete","/like","",req.params.id);
 })
 
